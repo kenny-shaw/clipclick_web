@@ -28,7 +28,6 @@ const SettingsPage = () => {
     <ProtectedRoute>
       <div style={{ padding: 24, maxWidth: 800, margin: "0 auto" }}>
         <Title level={2}>设置</Title>
-
         <Form
           form={form}
           layout="vertical"
