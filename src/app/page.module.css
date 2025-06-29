@@ -166,3 +166,236 @@ a.secondary {
     filter: invert();
   }
 }
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3e6f5 100%);
+  padding-top: 60px; /* 为HeaderBar留出空间 */
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 32px;
+  gap: 60px;
+}
+
+.heroContent {
+  flex: 1;
+  max-width: 600px;
+}
+
+.heroTitle {
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  color: #5f0a87 !important;
+  margin-bottom: 24px !important;
+  line-height: 1.2 !important;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem !important;
+  color: #666 !important;
+  margin-bottom: 40px !important;
+  line-height: 1.6 !important;
+}
+
+.heroImage {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ctaButton {
+  background: linear-gradient(90deg, #a4508b 0%, #ff61d2 100%) !important;
+  border: none !important;
+  height: 48px !important;
+  padding: 0 32px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 16px rgba(164, 80, 139, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(164, 80, 139, 0.4) !important;
+}
+
+.secondaryButton {
+  height: 48px !important;
+  padding: 0 32px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 24px !important;
+  border: 2px solid #a4508b !important;
+  color: #a4508b !important;
+  background: transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+.secondaryButton:hover {
+  background: #a4508b !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+.features {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 32px;
+}
+
+.sectionTitle {
+  text-align: center !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  color: #5f0a87 !important;
+  margin-bottom: 60px !important;
+}
+
+.featureCard {
+  text-align: center !important;
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(164, 80, 139, 0.1) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+  height: 100% !important;
+  padding: 32px 24px !important;
+}
+
+.featureCard:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 16px 48px rgba(164, 80, 139, 0.2) !important;
+}
+
+.featureIcon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.featureTitle {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #5f0a87 !important;
+  margin-bottom: 16px !important;
+}
+
+.featureDescription {
+  color: #666 !important;
+  line-height: 1.6 !important;
+  margin: 0 !important;
+}
+
+.ctaSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 32px;
+}
+
+.ctaCard {
+  text-align: center !important;
+  border: none !important;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #a4508b 0%, #ff61d2 100%) !important;
+  color: white !important;
+  padding: 60px 40px !important;
+  box-shadow: 0 16px 48px rgba(164, 80, 139, 0.3) !important;
+}
+
+.ctaTitle {
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 24px !important;
+}
+
+.ctaDescription {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.25rem !important;
+  margin-bottom: 40px !important;
+  line-height: 1.6 !important;
+}
+
+.ctaCard .ctaButton {
+  background: white !important;
+  color: #a4508b !important;
+  font-weight: 700 !important;
+}
+
+.ctaCard .ctaButton:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 24px;
+    gap: 40px;
+  }
+
+  .heroTitle {
+    font-size: 2rem !important;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem !important;
+  }
+
+  .features {
+    padding: 60px 24px;
+  }
+
+  .sectionTitle {
+    font-size: 2rem !important;
+  }
+
+  .ctaSection {
+    padding: 60px 24px;
+  }
+
+  .ctaCard {
+    padding: 40px 24px;
+  }
+
+  .ctaTitle {
+    font-size: 2rem !important;
+  }
+
+  .ctaDescription {
+    font-size: 1.1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 16px;
+  }
+
+  .heroTitle {
+    font-size: 1.75rem !important;
+  }
+
+  .features {
+    padding: 40px 16px;
+  }
+
+  .ctaSection {
+    padding: 40px 16px;
+  }
+
+  .ctaCard {
+    padding: 32px 16px;
+  }
+}
