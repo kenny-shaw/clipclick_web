@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Form, Input, Card, Typography, message } from "antd";
 import { useAuthStore } from "@/store/authStore";
@@ -11,7 +11,7 @@ interface RegisterForm {
   password: string;
 }
 
-const RegisterPage = () => {
+const RegisterPageInner = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isLoading = useAuthStore((s) => s.isLoading);
@@ -140,5 +140,11 @@ const RegisterPage = () => {
     </div>
   );
 };
+
+const RegisterPage = () => (
+  <Suspense fallback={null}>
+    <RegisterPageInner />
+  </Suspense>
+);
 
 export default RegisterPage;

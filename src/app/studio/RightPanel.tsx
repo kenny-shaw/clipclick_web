@@ -8,6 +8,7 @@ import {
   LinkOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
+import Image from "next/image";
 import styles from "./studio.module.scss";
 import { VideoItem } from "@/api/video";
 
@@ -113,10 +114,13 @@ const RightPanel: React.FC<RightPanelProps> = ({ videos }) => {
   const VideoCard: React.FC<{ video: VideoItemWithStatus }> = ({ video }) => (
     <div className={styles.videoCard}>
       <div className={styles.videoPreview}>
-        <img
+        <Image
           src={video.coverUrl || "/next.svg"}
           alt={video.tile}
           className={styles.videoCover}
+          fill
+          sizes="120px"
+          style={{ objectFit: "cover" }}
         />
         <Tooltip title="预览">
           <PlayCircleOutlined
