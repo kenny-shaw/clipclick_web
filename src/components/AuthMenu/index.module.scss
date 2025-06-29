@@ -75,6 +75,33 @@
   min-width: 160px !important;
 }
 
+// 未登录状态的按钮样式
+.loginButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loginButton {
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.loginButton:hover {
+  transform: translateY(-1px);
+}
+
+.registerButton {
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(103, 58, 183, 0.2);
+}
+
+.registerButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3);
+}
+
 @media (max-width: 600px) {
   .authMenu {
     padding: 2px 6px;
@@ -94,5 +121,9 @@
   .menuItem {
     font-size: 14px;
     padding: 8px 14px;
+  }
+
+  .loginButtons {
+    gap: 6px;
   }
 }

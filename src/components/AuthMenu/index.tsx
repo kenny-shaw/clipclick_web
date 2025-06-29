@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Avatar, Dropdown, message } from "antd";
+import { Avatar, Dropdown, message, Button } from "antd";
 import {
   UserOutlined,
   LogoutOutlined,
@@ -15,12 +15,52 @@ const AuthMenu: React.FC = () => {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
   const user = useAuthStore((s) => s.user);
-  console.log("user", user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
 
-  if (!mounted || !user || isLoading) return null;
+  // 如果还没挂载或正在加载，显示加载状态
+  if (!mounted || isLoading) {
+    return (
+      <div className={styles.authMenu}>
+        <div
+          style={{
+            width: 80,
+            height: 32,
+            background: "#f0f0f0",
+            borderRadius: 16,
+          }}
+        ></div>
+      </div>
+    );
+  }
+
+  // 如果未登录，显示登录/注册按钮
+  if (!user) {
+    return (
+      <div className={styles.loginButtons}>
+        <Button
+          type="text"
+          onClick={() => router.push("/login")}
+          className={styles.loginButton}
+          style={{ color: "#673ab7" }}
+        >
+          登录
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => router.push("/register")}
+          className={styles.registerButton}
+          style={{
+            background: "linear-gradient(90deg, #673ab7 0%, #9c27b0 100%)",
+            border: "none",
+          }}
+        >
+          注册
+        </Button>
+      </div>
+    );
+  }
 
   const items = [
     {
@@ -50,7 +90,6 @@ const AuthMenu: React.FC = () => {
       message.success("已退出登录");
       router.replace("/login");
     }
-    console.log(e);
   };
 
   return (
