@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Form, Input, Button, Select, Typography, FormInstance } from "antd";
+import { Form, Input, Button, Typography, FormInstance } from "antd";
 import styles from "./studio.module.scss";
 
 const { Title } = Typography;
@@ -45,12 +45,9 @@ const LeftPanel: React.FC<LeftPanelProps> = ({ form, loading, onGenerate }) => (
             label="视频模板"
             name="templateId"
             initialValue="模版1"
-            rules={[{ required: true, message: "请选择视频模板" }]}
+            rules={[{ required: true, message: "请输入视频模板" }]}
           >
-            <Select
-              size="large"
-              options={[{ label: "模板1", value: "模版1" }]}
-            />
+            <Input size="large" placeholder="请输入视频模板或选择预设模板" />
           </Form.Item>
         </div>
         <Form.Item>
