@@ -47,12 +47,12 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     isCreating: false,
     total: 0,
     current: 1,
-    pageSize: 10,
+    pageSize: 1000,
 
     fetchVideoList: async (params = {}) => {
         set({ isLoading: true });
         try {
-            const { current = 1, pageSize = 10 } = params;
+            const { current = 1, pageSize = 1000 } = params;
             const response = await getVideoList({ current, pageSize });
 
             console.log("response", response);
@@ -147,7 +147,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             isCreating: false,
             total: 0,
             current: 1,
-            pageSize: 10,
+            pageSize: 1000,
         });
     },
 })); 
