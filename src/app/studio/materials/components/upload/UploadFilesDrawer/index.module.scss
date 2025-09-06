@@ -1,0 +1,56 @@
+.uploadFilesDrawer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .selectSection {
+    padding-bottom: 24px;
+
+    .ant-btn {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 12px;
+
+      .anticon {
+        font-size: 20px;
+        margin-right: 8px;
+      }
+    }
+
+    .hint {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+    }
+  }
+
+  .fileListSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    .ant-typography {
+      margin-bottom: 16px;
+    }
+  }
+
+  .emptyState {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+
+    .emptyIcon {
+      font-size: 64px;
+      color: #d9d9d9;
+      margin-bottom: 16px;
+    }
+  }
+}

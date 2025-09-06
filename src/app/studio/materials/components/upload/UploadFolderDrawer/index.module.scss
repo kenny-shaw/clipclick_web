@@ -1,0 +1,110 @@
+.uploadFolderDrawer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .selectSection {
+    padding-bottom: 16px;
+
+    .ant-btn {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 12px;
+
+      .anticon {
+        font-size: 20px;
+        margin-right: 8px;
+      }
+    }
+
+    .hint {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+    }
+  }
+
+  .folderInfo {
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+
+    .folderInfoHeader {
+      margin-bottom: 8px;
+
+      .ant-typography {
+        margin: 0;
+      }
+    }
+
+    .folderInfoDetails {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+
+      .folderDetail {
+        font-size: 12px;
+        margin: 0;
+      }
+    }
+
+    .folderPreview {
+      border-top: 1px solid #e8e8e8;
+      padding-top: 8px;
+      margin-top: 8px;
+
+      .previewTitle {
+        font-size: 12px;
+        font-weight: 500;
+        margin: 0 0 4px 0;
+        display: block;
+      }
+
+      .previewPath {
+        font-size: 11px;
+        font-family: monospace;
+        display: block;
+        margin: 0 0 2px 0;
+        padding-left: 8px;
+      }
+
+      .previewMore {
+        font-size: 11px;
+        margin: 4px 0 0 8px;
+        display: block;
+        font-style: italic;
+      }
+    }
+  }
+
+  .fileListSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    .ant-typography {
+      margin-bottom: 16px;
+    }
+  }
+
+  .emptyState {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+
+    .emptyIcon {
+      font-size: 64px;
+      color: #d9d9d9;
+      margin-bottom: 16px;
+    }
+  }
+}

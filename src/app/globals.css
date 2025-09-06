@@ -24,6 +24,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 为非studio页面添加顶部padding */
+body:not(:has([data-studio-layout])) {
+  padding-top: 64px;
+  overflow-y: auto;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

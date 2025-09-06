@@ -1,0 +1,52 @@
+// 注册页面容器样式
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3e6f5 100%);
+}
+
+// 注册卡片样式
+.card {
+  width: 360px;
+  box-shadow: 0 4px 24px #a4508b22;
+  border-radius: 16px;
+}
+
+// 头部区域样式
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.logo {
+  margin-bottom: 8px;
+}
+
+.title {
+  margin: 0 !important;
+  color: #a4508b !important;
+}
+
+// 注册按钮样式
+.registerButton {
+  background: linear-gradient(90deg, #a4508b 0%, #ff61d2 100%) !important;
+  border: none !important;
+}
+
+// 登录链接区域样式
+.loginLink {
+  text-align: center;
+  margin-top: 8px;
+
+  a {
+    color: #a4508b;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

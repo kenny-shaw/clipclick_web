@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createVideo, getVideoList, VideoItem, VideoListResponse } from '@/api/video';
-import { CreateVideoParams } from '@/api/config';
+import { VideoService } from '@/api';
+import type { VideoItem, VideoListResponse, CreateVideoParams } from '@/api';
 import { message } from 'antd';
 
 
@@ -53,10 +53,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         set({ isLoading: true });
         try {
             const { current = 1, pageSize = 1000 } = params;
-            const response = await getVideoList({ current, pageSize });
+            const response = await VideoService.getVideoList({ current, pageSize });
 
             console.log("response", response);
-            // @ts-expect-error API response type mismatch, response.rows exists but not properly typed
             if (response.rows) {
                 const videoList = response as VideoListResponse;
                 set({
@@ -93,7 +92,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             get().addLoadingTask(loadingTask);
 
             // 调用创建API
-            const response = await createVideo(params);
+            const response = await VideoService.createVideo(params);
 
             if (response.code === 200) {
                 // 创建成功后，移除loading任务并重新获取视频列表

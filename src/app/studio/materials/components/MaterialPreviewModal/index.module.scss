@@ -1,0 +1,138 @@
+.previewModal {
+  .modalTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    span {
+      font-weight: 500;
+    }
+  }
+}
+
+.previewContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// 预览区域
+.previewArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+// 图片预览
+.imagePreview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+  .imagePlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #8c8c8c;
+
+    .anticon {
+      font-size: 32px;
+    }
+  }
+}
+
+// 视频预览
+.videoPreview {
+  width: 100%;
+
+  video {
+    border-radius: 4px;
+  }
+}
+
+// 音频预览
+.audioPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+
+  .audioIcon {
+    .anticon {
+      font-size: 48px;
+      color: #faad14;
+    }
+  }
+}
+
+// 文件预览
+.filePreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+
+  .fileIcon {
+    .anticon {
+      font-size: 48px;
+      color: #8c8c8c;
+    }
+  }
+
+  a {
+    color: #1890ff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// 素材信息
+.materialInfo {
+  .infoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    margin-bottom: 16px;
+  }
+
+  .infoItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    &:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .fileUrl {
+    color: #1890ff;
+    text-decoration: none;
+    word-break: break-all;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .materialInfo {
+    .infoGrid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+.fullScreenLayout {
+  min-height: calc(100vh - 64px); // 减去 HeaderBar 高度
+  background: #fff;
+  padding: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,73 @@
+// 表格行样式
+.tableRow {
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .folderName {
+      color: #1890ff;
+
+      .folderIcon {
+        color: #1890ff;
+      }
+    }
+  }
+}
+
+// 文件夹名称样式
+.folderName {
+  display: flex;
+  align-items: center;
+
+  .folderIcon {
+    color: #faad14;
+    margin-right: 8px;
+    font-size: 16px;
+  }
+}
+
+// 所有者信息样式
+.ownerInfo {
+  display: flex;
+  align-items: center;
+
+  .ownerIcon {
+    color: #8c8c8c;
+    margin-right: 6px;
+    font-size: 14px;
+  }
+}
+
+// 时间信息样式
+.timeInfo {
+  display: flex;
+  align-items: center;
+
+  .timeIcon {
+    color: #8c8c8c;
+    margin-right: 6px;
+    font-size: 14px;
+  }
+}
+
+// 空状态样式
+.emptyState {
+  text-align: center;
+  padding: 60px 0;
+
+  .emptyIcon {
+    font-size: 48px;
+    color: #d9d9d9;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  p {
+    color: #8c8c8c;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+}

@@ -4,18 +4,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Form, Input, Card, Typography, message } from "antd";
 import { useAuthStore } from "@/store/authStore";
 import Image from "next/image";
+import styles from "./index.module.scss";
 
 interface RegisterForm {
   username: string;
-  email: string;
   password: string;
+  tenantName: string;
 }
 
 const RegisterPageInner = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isLoading = useAuthStore((s) => s.isLoading);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { isAuthenticated, isLoading, register } = useAuthStore();
   const [form] = Form.useForm<RegisterForm>();
 
   // 获取重定向URL
@@ -23,7 +23,7 @@ const RegisterPageInner = () => {
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      // 如果有重定向URL，跳转到原始页面，否则跳转到首页
+      // 注册成功并自动登录后，跳转到目标页面
       if (redirectUrl) {
         const decodedUrl = decodeURIComponent(redirectUrl);
         router.replace(decodedUrl);
@@ -33,49 +33,32 @@ const RegisterPageInner = () => {
     }
   }, [isAuthenticated, router, redirectUrl]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onFinish = async (values: RegisterForm) => {
     try {
-      // TODO: 实现注册功能
-      message.error("注册功能暂未实现");
-      // await register(values.username, values.email, values.password);
-      // message.success("注册成功");
-      // 注册成功后，useEffect会处理重定向
+      await register(values.username, values.password, values.tenantName);
+      message.success("注册成功！已自动登录");
+      // 注册成功后会通过 useEffect 自动跳转
     } catch (e: unknown) {
       if (e instanceof Error) {
         message.error(e.message);
       } else {
-        message.error("注册失败");
+        message.error("注册失败，请重试");
       }
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #f8fafc 0%, #f3e6f5 100%)",
-      }}
-    >
-      <Card
-        style={{
-          width: 360,
-          boxShadow: "0 4px 24px #a4508b22",
-          borderRadius: 16,
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
+    <div className={styles.container}>
+      <Card className={styles.card}>
+        <div className={styles.header}>
           <Image
             src="/next.svg"
             alt="logo"
             width={40}
             height={40}
-            style={{ marginBottom: 8 }}
+            className={styles.logo}
           />
-          <Typography.Title level={3} style={{ margin: 0, color: "#a4508b" }}>
+          <Typography.Title level={3} className={styles.title}>
             ClipClick AI 注册
           </Typography.Title>
         </div>
@@ -88,23 +71,35 @@ const RegisterPageInner = () => {
           <Form.Item
             name="username"
             label="用户名"
-            rules={[{ required: true, message: "请输入用户名" }]}
+            rules={[
+              { required: true, message: "请输入用户名" },
+              { min: 3, message: "用户名至少3个字符" },
+              { max: 20, message: "用户名最多20个字符" },
+            ]}
           >
             <Input size="large" placeholder="请输入用户名" />
           </Form.Item>
           <Form.Item
-            name="email"
-            label="邮箱"
-            rules={[{ required: true, message: "请输入邮箱" }]}
-          >
-            <Input size="large" placeholder="请输入邮箱" />
-          </Form.Item>
-          <Form.Item
             name="password"
             label="密码"
-            rules={[{ required: true, message: "请输入密码" }]}
+            rules={[
+              { required: true, message: "请输入密码" },
+              { min: 6, message: "密码至少6个字符" },
+              { max: 20, message: "密码最多20个字符" },
+            ]}
           >
             <Input.Password size="large" placeholder="请输入密码" />
+          </Form.Item>
+          <Form.Item
+            name="tenantName"
+            label="租户名称"
+            rules={[
+              { required: true, message: "请输入租户名称" },
+              { min: 2, message: "租户名称至少2个字符" },
+              { max: 50, message: "租户名称最多50个字符" },
+            ]}
+          >
+            <Input size="large" placeholder="请输入租户名称" />
           </Form.Item>
           <Form.Item>
             <Button
@@ -113,16 +108,13 @@ const RegisterPageInner = () => {
               block
               loading={isLoading}
               size="large"
-              style={{
-                background: "linear-gradient(90deg, #a4508b 0%, #ff61d2 100%)",
-                border: "none",
-              }}
+              className={styles.registerButton}
             >
               注册
             </Button>
           </Form.Item>
         </Form>
-        <div style={{ textAlign: "center", marginTop: 8 }}>
+        <div className={styles.loginLink}>
           已有账号？{" "}
           <a
             onClick={() => {

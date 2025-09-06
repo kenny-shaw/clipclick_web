@@ -1,0 +1,26 @@
+// 面包屑导航区域
+.breadcrumbWrapper {
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.breadcrumb {
+  .clickableCrumb {
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #1890ff;
+    }
+  }
+
+  .currentCrumb {
+    color: #666;
+    cursor: default;
+  }
+
+  .breadcrumbText {
+    margin-left: 4px;
+  }
+}

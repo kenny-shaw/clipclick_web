@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Form, Input, Card, Typography, message } from "antd";
 import { useAuthStore } from "@/store/authStore";
 import Image from "next/image";
+import styles from "./index.module.scss";
 
 interface LoginForm {
   username: string;
@@ -48,31 +49,17 @@ const LoginPageInner = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #f8fafc 0%, #f3e6f5 100%)",
-      }}
-    >
-      <Card
-        style={{
-          width: 360,
-          boxShadow: "0 4px 24px #a4508b22",
-          borderRadius: 16,
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
+    <div className={styles.container}>
+      <Card className={styles.card}>
+        <div className={styles.header}>
           <Image
             src="/next.svg"
             alt="logo"
             width={40}
             height={40}
-            style={{ marginBottom: 8 }}
+            className={styles.logo}
           />
-          <Typography.Title level={3} style={{ margin: 0, color: "#a4508b" }}>
+          <Typography.Title level={3} className={styles.title}>
             ClipClick AI 登录
           </Typography.Title>
         </div>
@@ -103,16 +90,13 @@ const LoginPageInner = () => {
               block
               loading={isLoading}
               size="large"
-              style={{
-                background: "linear-gradient(90deg, #a4508b 0%, #ff61d2 100%)",
-                border: "none",
-              }}
+              className={styles.loginButton}
             >
               登录
             </Button>
           </Form.Item>
         </Form>
-        <div style={{ textAlign: "center", marginTop: 8 }}>
+        <div className={styles.registerLink}>
           没有账号？ <a onClick={() => router.push("/register")}>注册</a>
         </div>
       </Card>
