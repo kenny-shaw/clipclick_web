@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import TOS from '@volcengine/tos-sdk';
 import { AuthService } from '@/api';
+import { useAuthStore } from '@/store/authStore';
 
 // TOS 配置接口
 interface TOSConfig {
@@ -24,8 +26,8 @@ interface UploadOptions {
     partSize?: number; // 分片大小，默认5MB
     taskNum?: number;  // 并发数，默认3
     onProgress?: (progress: UploadProgress) => void;
-    cancelToken?: unknown; // 取消令牌
-    checkpoint?: unknown; // 断点信息
+    cancelToken?: any; // 取消令牌
+    checkpoint?: any; // 断点信息
 }
 
 // TOS客户端类
@@ -72,7 +74,6 @@ class TOSClient {
             cancelToken,
             checkpoint
         } = options;
-
         try {
             const result = await this.client.uploadFile({
                 key,
@@ -81,12 +82,14 @@ class TOSClient {
                 taskNum,
                 cancelToken, // 支持取消
                 checkpoint, // 支持断点续传
-                progress: (p: number, checkpoint: { uploadedSize?: number }) => {
+                progress: (p: number, checkpoint) => {
                     if (onProgress) {
+                        const loaded = Math.round(p * file.size);
                         onProgress({
-                            loaded: checkpoint?.uploadedSize || 0,
+                            loaded: loaded,
                             total: file.size,
-                            percent: Math.round(p * 100)
+                            percent: Math.round(p * 100),
+                            checkpoint: checkpoint
                         });
                     }
                 }
@@ -189,7 +192,7 @@ class TOSClientManager {
     private static instance: TOSClientManager;
     private cachedClient: TOSClient | null = null;
     private tokenExpiry: number = 0;
-    private readonly TOKEN_CACHE_DURATION = 50 * 60 * 1000; // 50分钟缓存（临时token通常1小时过期）
+    private readonly TOKEN_REFRESH_BUFFER = 1 * 60 * 1000; // 提前1分钟刷新token，避免过期
 
     private constructor() { }
 
@@ -203,18 +206,26 @@ class TOSClientManager {
     // 获取TOS客户端（带缓存）
     async getTOSClient(): Promise<TOSClient> {
         const now = Date.now();
+        const refreshThreshold = this.tokenExpiry - this.TOKEN_REFRESH_BUFFER;
 
-        // 如果缓存有效，直接返回
-        if (this.cachedClient && now < this.tokenExpiry) {
+        // 如果缓存有效且未接近过期，直接返回
+        if (this.cachedClient && now < refreshThreshold) {
             console.log('使用缓存的TOS客户端');
             return this.cachedClient;
         }
 
-        // 缓存过期或不存在，重新创建
-        console.log('创建新的TOS客户端');
+        // 缓存过期、接近过期或不存在，重新创建
+        if (this.cachedClient && now < this.tokenExpiry) {
+            console.log('TOS客户端即将过期，提前刷新');
+        } else {
+            console.log('创建新的TOS客户端');
+        }
+
         try {
-            this.cachedClient = await this.createNewTOSClient();
-            this.tokenExpiry = now + this.TOKEN_CACHE_DURATION;
+            const result = await this.createNewTOSClient();
+            this.cachedClient = result.client;
+            this.tokenExpiry = result.expiryTime;
+            console.log('TOS客户端已创建，过期时间:', new Date(this.tokenExpiry).toISOString());
             return this.cachedClient;
         } catch (error) {
             console.error('创建TOS客户端失败:', error);
@@ -225,7 +236,7 @@ class TOSClientManager {
     }
 
     // 创建新的TOS客户端
-    private async createNewTOSClient(): Promise<TOSClient> {
+    private async createNewTOSClient(): Promise<{ client: TOSClient; expiryTime: number }> {
         // 获取临时 token
         const response = await AuthService.getTosTempToken();
 
@@ -233,27 +244,37 @@ class TOSClientManager {
             throw new Error(response.msg || '获取临时 token 失败');
         }
 
-        const { accessKey, secretKey } = response.data;
+        const { accessKey, secretKey, token, expireTime } = response.data;
+        console.log('temp token', response);
 
-        // 从用户信息获取租户配置
-        const userInfoResponse = await AuthService.getUserInfo();
-        if (userInfoResponse.code !== 200 || !userInfoResponse.user.tenant?.tosConfig) {
-            throw new Error('无法获取租户 TOS 配置');
+        // 解析过期时间
+        const tokenExpiry = new Date(expireTime).getTime();
+        console.log('token expiry time:', new Date(tokenExpiry).toISOString());
+
+        // 从本地存储的用户信息获取租户配置，避免重复请求
+        const authState = useAuthStore.getState();
+        if (!authState.user?.tenant?.tosConfig) {
+            throw new Error('无法获取租户 TOS 配置，请重新登录');
         }
 
-        const tosConfig = userInfoResponse.user.tenant.tosConfig;
+        const tosConfig = authState.user.tenant.tosConfig;
 
-        console.log('tosConfig', tosConfig);
+        console.log('zuhu', tosConfig);
 
         const config: TOSConfig = {
             region: tosConfig.region,
-            endpoint: tosConfig.endpoint || "tos-cn-beijing.volces.com",
-            accessKeyId: tosConfig.accessKey || accessKey,
-            accessKeySecret: tosConfig.accessSecret || secretKey,
+            endpoint: tosConfig.host || "tos-cn-beijing.volces.com",
+            accessKeyId: accessKey || tosConfig.accessKey,
+            accessKeySecret: secretKey || tosConfig.accessSecret,
+            stsToken: token,
             bucket: tosConfig.bucket,
         };
+        console.log('tosConfig', config);
 
-        return new TOSClient(config);
+        return {
+            client: new TOSClient(config),
+            expiryTime: tokenExpiry
+        };
     }
 
     // 清除缓存

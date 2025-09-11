@@ -25,7 +25,7 @@ interface VideoState {
     pageSize: number;
 
     // 获取视频列表
-    fetchVideoList: (params?: { current?: number; pageSize?: number }) => Promise<void>;
+    fetchVideoList: (params?: { pageNum?: number; pageSize?: number }) => Promise<void>;
 
     // 创建视频
     createVideo: (params: CreateVideoParams) => Promise<void>;
@@ -52,8 +52,8 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     fetchVideoList: async (params = {}) => {
         set({ isLoading: true });
         try {
-            const { current = 1, pageSize = 1000 } = params;
-            const response = await VideoService.getVideoList({ current, pageSize });
+            const { pageNum = 1, pageSize = 1000 } = params;
+            const response = await VideoService.getVideoList({ pageNum, pageSize });
 
             console.log("response", response);
             if (response.rows) {
@@ -61,7 +61,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
                 set({
                     videos: videoList.rows,
                     total: videoList.total,
-                    current: current,
+                    current: pageNum,
                     pageSize: pageSize,
                     isLoading: false,
                 });

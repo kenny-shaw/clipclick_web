@@ -1,12 +1,12 @@
 .sidebar {
-  background: #fff;
-  height: calc(100vh - 64px);
-  position: fixed;
+  background: #fff !important;
+  height: calc(100vh - 64px) !important;
+  position: fixed !important;
   top: 64px; // HeaderBar 高度
-  left: 0;
-  z-index: 999;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
+  left: 0 !important;
+  z-index: 999 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.2s ease !important;
 
   :global(.ant-layout-sider-trigger) {
     background: #fff;

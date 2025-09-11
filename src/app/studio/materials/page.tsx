@@ -188,14 +188,14 @@ const MaterialsPage = () => {
   };
 
   // 文件夹分页处理
-  const handleFolderPageChange = (current: number, pageSize: number) => {
-    fetchFolderList({ current, pageSize });
+  const handleFolderPageChange = (pageNum: number, pageSize: number) => {
+    fetchFolderList({ pageNum, pageSize });
   };
 
   // 素材分页处理
-  const handleMaterialPageChange = (current: number, pageSize: number) => {
+  const handleMaterialPageChange = (pageNum: number, pageSize: number) => {
     fetchMaterialList({
-      current,
+      pageNum,
       pageSize,
       folderId: currentFolderId || undefined,
     });
@@ -226,18 +226,18 @@ const MaterialsPage = () => {
         </div>
 
         <Space>
-          {/* 后台任务按钮 */}
-          <Button
-            type={backgroundTasks.length > 0 ? "primary" : "default"}
-            icon={<BellOutlined />}
-            onClick={toggleBackgroundTasksVisible}
-            style={{
-              position: "relative",
-              ...(isUploading ? { animation: "pulse 1.5s infinite" } : {}),
-            }}
-          >
-            后台任务
-            {backgroundTasks.length > 0 && (
+          {/* 后台任务按钮 - 只在有后台任务时显示 */}
+          {backgroundTasks.length > 0 && (
+            <Button
+              type="primary"
+              icon={<BellOutlined />}
+              onClick={toggleBackgroundTasksVisible}
+              style={{
+                position: "relative",
+                ...(isUploading ? { animation: "pulse 1.5s infinite" } : {}),
+              }}
+            >
+              后台任务
               <span
                 style={{
                   position: "absolute",
@@ -257,8 +257,8 @@ const MaterialsPage = () => {
               >
                 {backgroundTasks.length > 99 ? "99+" : backgroundTasks.length}
               </span>
-            )}
-          </Button>
+            </Button>
+          )}
           {/* 根目录显示创建文件夹和上传文件夹按钮 */}
           {isRoot && (
             <>

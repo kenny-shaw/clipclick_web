@@ -19,7 +19,7 @@ export interface CreateMaterialParams {
 
 // 素材列表查询参数
 export interface MaterialListParams {
-    current?: number;
+    pageNum?: number;
     pageSize?: number;
     folderId?: number;
     [key: string]: string | number | undefined;
@@ -65,7 +65,7 @@ export interface CreateFolderParams {
 
 // 文件夹列表查询参数
 export interface FolderListParams {
-    current?: number;
+    pageNum?: number;
     pageSize?: number;
     [key: string]: string | number | undefined;
 }

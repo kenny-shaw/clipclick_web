@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import HeaderBar from "@/components/HeaderBar";
+import AuthProvider from "@/components/AuthProvider";
+import "@ant-design/v5-patch-for-react-19";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,8 +31,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <HeaderBar />
-        <AntdRegistry>{children}</AntdRegistry>
+        <AntdRegistry>
+          <AuthProvider>
+            <HeaderBar />
+            {children}
+          </AuthProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

@@ -9,7 +9,7 @@ export type ApiResponse<T = unknown> = BaseResponse & T;
 
 // 分页参数类型
 export interface PaginationParams {
-    current?: number;
+    pageNum?: number;
     pageSize?: number;
     [key: string]: string | number | undefined;
 }

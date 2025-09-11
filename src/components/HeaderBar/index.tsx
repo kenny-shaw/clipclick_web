@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import AuthMenu from "../AuthMenu";
 import BackButton from "../BackButton";
-import styles from "./index.module.css";
+import styles from "./index.module.scss";
 
 // 移除素材管理，只保留创作中心
 const navs = [{ key: "studio", label: "创作中心", path: "/studio" }];

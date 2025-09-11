@@ -83,8 +83,20 @@ export const generateTaskId = (): string => {
 };
 
 // 生成TOS路径
-export const generateTOSPath = (file: File, prefix: string = 'materials'): string => {
-    return `${prefix}/${Date.now()}_${file.name}`;
+export const generateTOSPath = (file: File, options: {
+    tenantId?: number;
+    folderId?: number;
+    prefix?: string;
+} = {}): string => {
+    const { tenantId, folderId, prefix = 'materials' } = options;
+
+    if (tenantId && folderId) {
+        return `tenant_${tenantId}/${prefix}/folder_${folderId}/${file.name}`;
+    } else if (tenantId) {
+        return `tenant_${tenantId}/${prefix}/${file.name}`;
+    } else {
+        return `${prefix}/${Date.now()}_${file.name}`;
+    }
 };
 
 // 创建新的上传任务
@@ -95,6 +107,8 @@ export const createUploadTask = (
         targetFolderId?: number;
         tosPath?: string;
         location?: 'foreground' | 'background';
+        tenantId?: number;
+        folderId?: number;
     } = {}
 ): UploadTask => {
     const now = Date.now();
@@ -104,7 +118,10 @@ export const createUploadTask = (
         file,
         relativePath: options.relativePath,
         targetFolderId: options.targetFolderId,
-        tosPath: options.tosPath || generateTOSPath(file),
+        tosPath: options.tosPath || generateTOSPath(file, {
+            tenantId: options.tenantId,
+            folderId: options.folderId || options.targetFolderId
+        }),
         status: 'pending',
         progress: 0,
         location: options.location || 'foreground',

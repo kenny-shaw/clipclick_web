@@ -19,7 +19,7 @@ interface FolderTableProps {
   total: number;
   onFolderDoubleClick: (folder: FolderInfo) => void;
   onCreateFolder: () => void;
-  onPageChange?: (current: number, pageSize: number) => void;
+  onPageChange?: (pageNum: number, pageSize: number) => void;
 }
 
 const FolderTable: React.FC<FolderTableProps> = ({

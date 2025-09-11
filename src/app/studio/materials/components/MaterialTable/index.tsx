@@ -26,7 +26,7 @@ interface MaterialTableProps {
   total: number;
   onUploadMaterial: () => void;
   onMaterialClick?: (material: MaterialInfo) => void;
-  onPageChange?: (current: number, pageSize: number) => void;
+  onPageChange?: (pageNum: number, pageSize: number) => void;
 }
 
 const MaterialTable: React.FC<MaterialTableProps> = ({

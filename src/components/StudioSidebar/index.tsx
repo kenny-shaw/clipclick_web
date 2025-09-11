@@ -134,6 +134,7 @@ const StudioSidebar: React.FC = () => {
       width={LAYOUT_CONSTANTS.SIDEBAR_WIDTH}
       collapsedWidth={LAYOUT_CONSTANTS.SIDEBAR_COLLAPSED_WIDTH}
     >
+      {/* 123 */}
       <Menu
         mode="inline"
         selectedKeys={getSelectedKeys()}

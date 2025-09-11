@@ -16,6 +16,7 @@ import type { UploadProgress } from '@/utils/tos';
 import TOS from '@volcengine/tos-sdk';
 import type { UploadTask, TaskStats } from '@/types/upload';
 import { getTaskStats, createUploadTask } from '@/utils/taskManager';
+import { useAuthStore } from './authStore';
 
 // 面包屑导航项
 export interface BreadcrumbItem {
@@ -117,7 +118,7 @@ interface MaterialState {
 
     // 上传控制
     startUpload: (taskIds?: string[], location?: 'foreground' | 'background') => Promise<void>;
-    uploadSingleTask: (task: MaterialUploadTask, createMaterialImmediately?: boolean) => Promise<void>;
+    uploadSingleTask: (task: MaterialUploadTask) => Promise<void>;
     createMaterialForTask: (taskId: string) => Promise<void>;
     cancelTask: (taskId: string) => void;
     cancelAllTasks: () => void;
@@ -180,8 +181,8 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     fetchFolderList: async (params = {}) => {
         set({ foldersLoading: true });
         try {
-            const { current = 1, pageSize = 20 } = params;
-            const response = await MaterialService.getFolderList({ current, pageSize, ...params });
+            const { pageNum = 1, pageSize = 20 } = params;
+            const response = await MaterialService.getFolderList({ pageNum, pageSize, ...params });
 
             console.log('文件夹列表响应:', response);
 
@@ -190,7 +191,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
                 set({
                     folders: folderList.rows,
                     foldersTotal: folderList.total,
-                    foldersCurrent: current,
+                    foldersCurrent: pageNum,
                     foldersPageSize: pageSize,
                     foldersLoading: false,
                 });
@@ -230,9 +231,9 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     fetchMaterialList: async (params = {}) => {
         set({ materialsLoading: true });
         try {
-            const { current = 1, pageSize = 20, folderId } = params;
+            const { pageNum = 1, pageSize = 20, folderId } = params;
             const response = await MaterialService.getMaterialList({
-                current,
+                pageNum,
                 pageSize,
                 folderId: folderId ?? get().currentFolderId ?? undefined,
                 ...params
@@ -245,7 +246,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
                 set({
                     materials: materialList.rows,
                     materialsTotal: materialList.total,
-                    materialsCurrent: current,
+                    materialsCurrent: pageNum,
                     materialsPageSize: pageSize,
                     materialsLoading: false,
                 });
@@ -464,12 +465,9 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         }
 
         try {
-            // 根据位置决定是否立即创建素材
-            const createImmediately = location === 'background';
-
             // 并行上传所有任务
             const uploadPromises = tasksToUpload.map(task =>
-                get().uploadSingleTask(task, createImmediately)
+                get().uploadSingleTask(task)
             );
             await Promise.allSettled(uploadPromises);
 
@@ -500,7 +498,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     },
 
     // 上传单个任务
-    uploadSingleTask: async (task: MaterialUploadTask, createMaterialImmediately: boolean = true) => {
+    uploadSingleTask: async (task: MaterialUploadTask) => {
         const tosClient = await createTOSClientWithRetry();
 
         // 创建取消令牌
@@ -538,8 +536,13 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
                 tosUrl: url
             });
 
-            // 根据参数决定是否立即创建素材
-            if (createMaterialImmediately) {
+            // 重新获取任务的最新状态，因为可能在上传过程中被转移到了后台
+            const currentTask = get().uploadTasks.find(t => t.id === task.id);
+            console.log('currentTask.location', currentTask?.location);
+
+            // 根据任务位置决定是否立即创建素材
+            // 后台任务立即创建素材，前台任务等待用户确认
+            if (currentTask?.location === 'background') {
                 await get().createMaterialForTask(task.id);
             }
 
@@ -593,7 +596,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
                 }),
                 modalData: '',
                 platformSource: 'web',
-                relatedInfo: '',
+                relatedInfo: '{}',
                 renderProtocol: ''
             };
 
@@ -674,10 +677,15 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         targetFolderId?: number;
         location?: 'foreground' | 'background';
     }) => {
+        // 获取当前用户的tenant ID
+        const authState = useAuthStore.getState();
+        const tenantId = authState.user?.tenant?.tenantId;
+
         const task = createUploadTask(file, {
             relativePath: options?.relativePath,
             targetFolderId: options?.targetFolderId,
-            tosPath: `materials/${Date.now()}_${file.name}`,
+            tenantId: tenantId,
+            folderId: options?.targetFolderId,
             location: options?.location || 'foreground'
         });
         return task;

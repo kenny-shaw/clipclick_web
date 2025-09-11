@@ -48,6 +48,7 @@ export interface RoleInfo {
 export interface TosConfig {
     bucket: string;
     endpoint: string;
+    host: string;
     accessKey: string;
     region: string;
     accessSecret: string;
@@ -160,6 +161,7 @@ export interface TosTempTokenData {
     secretKey: string;
     currentTime: string;
     expireTime: string;
+    token: string;
 }
 
 // TOS 临时 token 响应类型

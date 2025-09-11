@@ -255,16 +255,9 @@ const UploadFilesDrawer: React.FC<UploadFilesDrawerProps> = ({
         });
 
         message.info(`${tasksToTransfer.length} 个文件已转为后台上传`);
-
-        // 自动启动后台任务上传（后台会立即创建素材）
-        setTimeout(async () => {
-          try {
-            const { startUpload } = useMaterialStore.getState();
-            await startUpload(undefined, "background");
-          } catch (error) {
-            console.error("启动后台上传失败:", error);
-          }
-        }, 100);
+        // 注意：不需要重新调用 startUpload，因为：
+        // - 正在上传的任务会继续上传，上传完成后会自动创建素材（因为 location 已变为 'background'）
+        // - 等待上传的任务会在下次调用 startUpload 时被处理
       }
 
       // 3. 关闭抽屉

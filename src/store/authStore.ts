@@ -68,6 +68,8 @@ export const useAuthStore = create<AuthState>()(
                                 status: userData.status,
                                 permissions: userInfoResponse.permissions,
                                 roles: userInfoResponse.roles,
+                                tenant: userData.tenant,
+                                social_auth: userInfoResponse.social_auth,
                             };
 
                             console.log('构建的用户对象:', user);
@@ -148,6 +150,8 @@ export const useAuthStore = create<AuthState>()(
                                 status: userData.status,
                                 permissions: userInfoResponse.permissions,
                                 roles: userInfoResponse.roles,
+                                tenant: userData.tenant,
+                                social_auth: userInfoResponse.social_auth,
                             };
 
                             set({
