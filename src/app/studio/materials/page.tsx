@@ -77,14 +77,7 @@ const MaterialsPage = () => {
 
     if (folderIdNum !== currentFolderId) {
       if (folderIdNum) {
-        // 从文件夹列表中查找对应的文件夹名称
-        const targetFolder = folders.find(
-          (folder) => folder.id === folderIdNum
-        );
-        const folderName = targetFolder
-          ? targetFolder.name
-          : `文件夹${folderIdNum}`;
-        setCurrentFolder(folderIdNum, folderName);
+        setCurrentFolder(folderIdNum);
       } else {
         navigateToRoot();
       }
@@ -119,7 +112,7 @@ const MaterialsPage = () => {
   // 文件夹双击处理
   const handleFolderDoubleClick = (folder: FolderInfo) => {
     // 更新面包屑导航
-    setCurrentFolder(folder.id, folder.name);
+    setCurrentFolder(folder.id);
     // 跳转到文件夹页面
     router.push(`/studio/materials?folderId=${folder.id}`);
   };
@@ -187,6 +180,11 @@ const MaterialsPage = () => {
     }
   };
 
+  const handleUploadFolderSuccess = () => {
+    // 文件夹上传成功后刷新文件夹列表
+    fetchFolderList();
+  };
+
   // 文件夹分页处理
   const handleFolderPageChange = (pageNum: number, pageSize: number) => {
     fetchFolderList({ pageNum, pageSize });
@@ -208,7 +206,7 @@ const MaterialsPage = () => {
     <div className={styles.materialsPage}>
       {/* 面包屑导航 */}
       <MaterialBreadcrumb
-        breadcrumbs={breadcrumbs}
+        breadcrumbs={breadcrumbs()}
         onBreadcrumbClick={handleBreadcrumbClick}
       />
 
@@ -216,7 +214,7 @@ const MaterialsPage = () => {
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <Title level={2} className={styles.pageTitle}>
-            {isRoot ? "素材库" : breadcrumbs[breadcrumbs.length - 1]?.name}
+            {isRoot ? "素材库" : breadcrumbs()[breadcrumbs().length - 1]?.name}
           </Title>
           <p className={styles.pageDescription}>
             {isRoot
@@ -234,7 +232,7 @@ const MaterialsPage = () => {
               onClick={toggleBackgroundTasksVisible}
               style={{
                 position: "relative",
-                ...(isUploading ? { animation: "pulse 1.5s infinite" } : {}),
+                ...(isUploading() ? { animation: "pulse 1.5s infinite" } : {}),
               }}
             >
               后台任务
@@ -348,9 +346,8 @@ const MaterialsPage = () => {
       {/* 上传文件夹抽屉 */}
       <UploadFolderDrawer
         visible={uploadFolderVisible}
-        currentFolderId={currentFolderId}
         onClose={handleUploadFolderClose}
-        onSuccess={handleUploadSuccess}
+        onSuccess={handleUploadFolderSuccess}
       />
 
       {/* 后台任务侧边栏 */}

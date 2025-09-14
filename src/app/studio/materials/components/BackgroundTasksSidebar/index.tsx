@@ -29,6 +29,7 @@ const BackgroundTasksSidebar: React.FC = () => {
     toggleBackgroundTasksVisible,
     removeTask,
     getTasksByLocation,
+    cancelTask,
   } = useMaterialStore();
 
   // 获取后台任务
@@ -61,6 +62,20 @@ const BackgroundTasksSidebar: React.FC = () => {
   };
 
   const localStats = getLocalTaskStats();
+
+  // 处理删除任务（先取消上传再删除）
+  const handleRemoveTask = (taskId: string) => {
+    const task = backgroundTasks.find((t) => t.id === taskId);
+    if (
+      task &&
+      (task.status === "uploading" || task.materialStatus === "creating")
+    ) {
+      // 如果任务正在上传或创建素材，先取消
+      cancelTask(taskId);
+    }
+    // 删除任务
+    removeTask(taskId);
+  };
 
   // 获取任务状态标签
   const getTaskStatusTag = (task: MaterialUploadTask) => {
@@ -190,11 +205,7 @@ const BackgroundTasksSidebar: React.FC = () => {
                       type="text"
                       size="small"
                       icon={<DeleteOutlined />}
-                      onClick={() => removeTask(task.id)}
-                      disabled={
-                        task.status === "uploading" ||
-                        task.materialStatus === "creating"
-                      }
+                      onClick={() => handleRemoveTask(task.id)}
                       danger
                     />
                   </Tooltip>,
@@ -221,13 +232,15 @@ const BackgroundTasksSidebar: React.FC = () => {
 
                   {/* 进度条 */}
                   {(task.status === "uploading" ||
-                    task.status === "completed") && (
+                    task.status === "completed" ||
+                    task.status === "error" ||
+                    task.status === "cancelled") && (
                     <div className={styles.taskProgress}>
                       <Progress
                         percent={task.progress}
                         size="small"
                         status={
-                          task.status === "error"
+                          task.status === "error" || task.status === "cancelled"
                             ? "exception"
                             : task.status === "completed"
                             ? "success"

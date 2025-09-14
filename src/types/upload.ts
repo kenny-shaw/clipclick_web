@@ -5,6 +5,7 @@ export interface UploadTask {
     relativePath?: string; // 文件夹上传时的相对路径
     targetFolderId?: number; // 目标文件夹ID
     tosPath: string; // 完整的TOS路径
+    folderName?: string; // 文件夹上传时的文件夹名称
 
     // 统一的状态管理
     status: 'pending' | 'uploading' | 'completed' | 'error' | 'cancelled';
@@ -64,12 +65,6 @@ export interface TaskStats {
     background: number;
 }
 
-// 任务过滤选项
-export interface TaskFilter {
-    location?: 'foreground' | 'background';
-    status?: string;
-    materialStatus?: string;
-}
 
 // 兼容性接口 - 保持与旧代码的兼容
 export interface UploadFileInfo extends UploadTask {

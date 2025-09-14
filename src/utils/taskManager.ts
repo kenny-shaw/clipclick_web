@@ -1,20 +1,9 @@
-import type { UploadTask, TaskStats, TaskFilter } from '@/types/upload';
+import type { UploadTask, TaskStats } from '@/types/upload';
 
-// 任务过滤工具函数
-export const filterTasks = (tasks: UploadTask[], filter: TaskFilter): UploadTask[] => {
-    return tasks.filter(task => {
-        if (filter.location && task.location !== filter.location) {
-            return false;
-        }
-        if (filter.status && task.status !== filter.status) {
-            return false;
-        }
-        if (filter.materialStatus && task.materialStatus !== filter.materialStatus) {
-            return false;
-        }
-        return true;
-    });
-};
+/**
+ * 任务管理工具函数
+ * 提供上传任务的基本操作和统计功能
+ */
 
 // 获取任务统计信息
 export const getTaskStats = (tasks: UploadTask[]): TaskStats => {
@@ -60,46 +49,50 @@ export const getTaskStats = (tasks: UploadTask[]): TaskStats => {
     return stats;
 };
 
-// 检查任务是否可以进行操作
-export const canCancelTask = (task: UploadTask): boolean => {
-    return task.status === 'uploading' || task.status === 'pending';
-};
 
-export const canPauseTask = (task: UploadTask): boolean => {
-    return task.status === 'uploading';
-};
-
-export const canResumeTask = (task: UploadTask): boolean => {
-    return task.status === 'pending' || task.status === 'error';
-};
-
-export const canRemoveTask = (task: UploadTask): boolean => {
-    return task.status !== 'uploading' && task.materialStatus !== 'creating';
-};
-
-// 生成任务ID
+/**
+ * 生成唯一的任务ID
+ * @returns 格式: timestamp_randomString
+ */
 export const generateTaskId = (): string => {
     return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 生成TOS路径
+/**
+ * 生成TOS存储路径
+ * @param file 文件对象
+ * @param options 路径选项
+ * @returns TOS路径字符串
+ */
 export const generateTOSPath = (file: File, options: {
     tenantId?: number;
     folderId?: number;
     prefix?: string;
+    folderName?: string; // 文件夹上传时的文件夹名称
 } = {}): string => {
-    const { tenantId, folderId, prefix = 'materials' } = options;
+    const { tenantId, folderId, prefix = 'materials', folderName } = options;
 
     if (tenantId && folderId) {
         return `tenant_${tenantId}/${prefix}/folder_${folderId}/${file.name}`;
+    } else if (tenantId && folderName) {
+        // 文件夹上传的临时路径
+        return `tenant_${tenantId}/${prefix}/folder_${folderName}/${file.name}`;
     } else if (tenantId) {
         return `tenant_${tenantId}/${prefix}/${file.name}`;
+    } else if (folderName) {
+        // 没有租户ID时的文件夹上传临时路径
+        return `${prefix}/folder_${folderName}/${file.name}`;
     } else {
         return `${prefix}/${Date.now()}_${file.name}`;
     }
 };
 
-// 创建新的上传任务
+/**
+ * 创建新的上传任务
+ * @param file 文件对象
+ * @param options 任务选项
+ * @returns 上传任务对象
+ */
 export const createUploadTask = (
     file: File,
     options: {
@@ -109,6 +102,7 @@ export const createUploadTask = (
         location?: 'foreground' | 'background';
         tenantId?: number;
         folderId?: number;
+        folderName?: string; // 文件夹上传时的文件夹名称
     } = {}
 ): UploadTask => {
     const now = Date.now();
@@ -120,8 +114,10 @@ export const createUploadTask = (
         targetFolderId: options.targetFolderId,
         tosPath: options.tosPath || generateTOSPath(file, {
             tenantId: options.tenantId,
-            folderId: options.folderId || options.targetFolderId
+            folderId: options.folderId || options.targetFolderId,
+            folderName: options.folderName
         }),
+        folderName: options.folderName,
         status: 'pending',
         progress: 0,
         location: options.location || 'foreground',
@@ -131,25 +127,3 @@ export const createUploadTask = (
     };
 };
 
-// 更新任务时间戳
-export const updateTaskTimestamp = (task: UploadTask): UploadTask => {
-    return {
-        ...task,
-        updatedAt: Date.now()
-    };
-};
-
-// 检查任务是否完成
-export const isTaskCompleted = (task: UploadTask): boolean => {
-    return task.status === 'completed' && task.materialStatus === 'completed';
-};
-
-// 检查任务是否失败
-export const isTaskFailed = (task: UploadTask): boolean => {
-    return task.status === 'error' || task.materialStatus === 'error';
-};
-
-// 检查任务是否正在处理
-export const isTaskProcessing = (task: UploadTask): boolean => {
-    return task.status === 'uploading' || task.materialStatus === 'creating';
-};

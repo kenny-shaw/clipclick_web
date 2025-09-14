@@ -83,6 +83,7 @@ class TOSClient {
                 cancelToken, // 支持取消
                 checkpoint, // 支持断点续传
                 progress: (p: number, checkpoint) => {
+                    console.log('upload progress', p, checkpoint);
                     if (onProgress) {
                         const loaded = Math.round(p * file.size);
                         onProgress({
@@ -100,6 +101,7 @@ class TOSClient {
             return fileUrl;
 
         } catch (error: unknown) {
+            console.log('upload error', error);
             // 检查是否是取消错误
             if ((error as { code?: string; message?: string }).code === 'CANCELED' ||
                 (error as { message?: string }).message?.includes('cancel')) {

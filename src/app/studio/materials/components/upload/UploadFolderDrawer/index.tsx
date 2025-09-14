@@ -1,8 +1,13 @@
-import React, { useState, useRef } from "react";
-import { Button, Typography, Divider, message, Modal } from "antd";
-import { FolderOpenOutlined, InboxOutlined } from "@ant-design/icons";
+import React, { useRef, useState } from "react";
+import { Button, Typography, Divider, message, Alert, Tag } from "antd";
+import {
+  FolderOpenOutlined,
+  InboxOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import { useMaterialStore } from "@/store/materialStore";
-import type { UploadFileInfo } from "@/store/materialStore";
+import type { MaterialUploadTask } from "@/store/materialStore";
+import { getTaskStats } from "@/utils/taskManager";
 import BaseUploadDrawer from "../common/BaseUploadDrawer";
 import FileList from "../common/FileList";
 import ProgressBar from "../common/ProgressBar";
@@ -13,144 +18,88 @@ const { Title, Text } = Typography;
 
 interface UploadFolderDrawerProps {
   visible: boolean;
-  currentFolderId: number | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
   visible,
-  currentFolderId,
   onClose,
   onSuccess,
 }) => {
   const {
     isUploading,
-    uploadFilesToTOS,
-    createFolderStructure,
-    batchCreateMaterialsWithFolders,
-    startBackgroundUpload,
+    isForegroundUploading,
+    addTasks,
+    startUpload,
+    getTasksByLocation,
+    clearTask,
+    addTaskFromFile,
+    clearForegroundTasks,
+    confirmForegroundTasks,
+    createFolderForUpload,
+    updateTasksTargetFolder,
   } = useMaterialStore();
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [folderName, setFolderName] = useState<string>("");
 
-  // 文件列表（本地状态）
-  const [fileList, setFileList] = useState<UploadFileInfo[]>([]);
-
-  // 文件夹结构信息
-  const [folderStructure, setFolderStructure] = useState<{
-    rootFolderName: string;
-    fileCount: number;
-    folderPaths: string[]; // 所有需要创建的文件夹路径
-    maxDepth: number; // 最大层级深度
-  } | null>(null);
+  // 只获取前台任务用于显示
+  const foregroundTasks = getTasksByLocation("foreground");
 
   // 文件输入引用
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  // 生成文件ID
-  const generateFileId = () => {
-    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  };
-
-  // 生成TOS路径（文件夹上传）
-  const generateTOSPath = (relativePath: string, folderTosPath: string) => {
-    return `${folderTosPath}/${relativePath}`;
-  };
-
-  // 检查是否所有文件都上传完成
-  const checkAllCompleted = () => {
-    return fileList.every(
-      (file) => file.tosStatus === "completed" || file.tosStatus === "error"
-    );
-  };
-
-  const allTOSCompleted = checkAllCompleted();
-
-  // 解析文件夹结构
-  const parseFileStructure = (files: FileList) => {
-    const folderTosPath = `folders/${Date.now()}`;
-    const newFileList: UploadFileInfo[] = [];
-    const folderPathsSet = new Set<string>();
-
-    // 获取根文件夹名称
-    const firstFile = files[0];
-    const firstRelativePath = (
-      firstFile as File & { webkitRelativePath?: string }
-    ).webkitRelativePath;
-    const rootFolderName = firstRelativePath
-      ? firstRelativePath.split("/")[0]
-      : "Unknown";
-
-    let maxDepth = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileRelativePath =
-        (file as File & { webkitRelativePath?: string }).webkitRelativePath ||
-        file.name;
-
-      // 提取文件夹路径（去掉文件名）
-      const pathParts = fileRelativePath.split("/");
-      const depth = pathParts.length;
-      maxDepth = Math.max(maxDepth, depth);
-
-      // 收集所有需要创建的文件夹路径
-      if (pathParts.length > 1) {
-        // 生成所有中间路径
-        for (let j = 1; j < pathParts.length; j++) {
-          const folderPath = pathParts.slice(0, j).join("/");
-          folderPathsSet.add(folderPath);
-        }
-      }
-
-      const fileInfo: UploadFileInfo = {
-        id: generateFileId(),
-        file,
-        relativePath: fileRelativePath,
-        targetFolderId: currentFolderId || undefined,
-        tosPath: generateTOSPath(fileRelativePath, folderTosPath),
-        tosStatus: "pending",
-        tosProgress: 0,
-        materialStatus: "pending",
-      };
-      newFileList.push(fileInfo);
-    }
-
-    const folderPaths = Array.from(folderPathsSet).sort();
-
-    return {
-      fileList: newFileList,
-      folderInfo: {
-        rootFolderName,
-        fileCount: files.length,
-        folderPaths,
-        maxDepth,
-      },
-    };
-  };
-
   // 处理文件夹选择
   const handleFolderSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    const { fileList: newFileList, folderInfo } = parseFileStructure(files);
+    // 从第一个文件的 webkitRelativePath 提取文件夹名
+    const firstFile = files[0];
+    const relativePath = firstFile.webkitRelativePath;
+    const extractedFolderName = relativePath.split("/")[0];
 
-    setFileList(newFileList);
-    setFolderStructure(folderInfo);
+    setFolderName(extractedFolderName);
 
-    // 清空input值
+    // 使用新的任务创建方法
+    const newTasks: MaterialUploadTask[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const task = addTaskFromFile(file, {
+        targetFolderId: undefined, // 先不设置，等创建文件夹后再设置
+        location: "foreground",
+        folderName: extractedFolderName, // 添加文件夹名标识
+      });
+      newTasks.push(task);
+    }
+
+    addTasks(newTasks);
+
+    // 清空input值，允许重复选择相同文件夹
     event.target.value = "";
   };
 
   // 开始上传
   const handleStartUpload = async () => {
-    if (fileList.length === 0) {
+    const foregroundTasks = getTasksByLocation("foreground");
+
+    if (foregroundTasks.length === 0) {
       message.warning("请先选择要上传的文件夹");
       return;
     }
 
+    // 检查是否有待上传的任务
+    const pendingTasks = foregroundTasks.filter(
+      (task) => task.status === "pending"
+    );
+    if (pendingTasks.length === 0) {
+      message.warning("没有待上传的文件");
+      return;
+    }
+
     try {
-      await uploadFilesToTOS(fileList);
+      // 使用新的统一上传方法，明确指定只上传前台任务
+      await startUpload();
     } catch (error) {
       console.error("上传失败:", error);
       message.error("上传失败，请重试");
@@ -159,122 +108,72 @@ const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
 
   // 确定按钮点击
   const handleConfirm = async () => {
-    if (!allTOSCompleted) {
-      message.warning("还有文件正在上传中，请等待完成");
+    setConfirmLoading(true);
+    const foregroundTasks = getTasksByLocation("foreground");
+
+    if (foregroundTasks.length === 0) {
+      message.warning("没有可操作的文件");
+      setConfirmLoading(false);
       return;
     }
 
-    if (!folderStructure) {
-      message.error("文件夹信息缺失");
+    if (!folderName) {
+      message.warning("请先选择要上传的文件夹");
+      setConfirmLoading(false);
       return;
     }
 
     try {
-      // 1. 递归创建文件夹结构
-      message.loading("正在创建文件夹结构...", 0);
-      const folderIdMap = await createFolderStructure(
-        folderStructure.folderPaths,
-        currentFolderId
-      );
+      // 1. 先创建文件夹
+      const folderId = await createFolderForUpload(folderName);
 
-      message.destroy(); // 清除loading消息
+      // 2. 更新所有任务的 targetFolderId
+      updateTasksTargetFolder(folderId, folderName);
 
-      console.log("文件夹创建完成，ID映射:", folderIdMap);
+      // 3. 调用现有的 confirmForegroundTasks 方法
+      const { completedCount, transferredCount } =
+        await confirmForegroundTasks();
 
-      // 2. 批量创建素材，关联到对应的文件夹
-      message.loading("正在创建素材...", 0);
-      await batchCreateMaterialsWithFolders(fileList, folderIdMap);
-      message.destroy();
+      // 显示结果消息
+      if (completedCount > 0) {
+        message.success(
+          `成功创建文件夹"${folderName}"和 ${completedCount} 个素材`
+        );
+      }
+      if (transferredCount > 0) {
+        message.info(`${transferredCount} 个文件已转为后台上传`);
+      }
 
-      message.success(
-        `文件夹结构创建完成！共创建了 ${folderStructure.folderPaths.length} 个文件夹和 ${fileList.length} 个素材`
-      );
       onSuccess();
-      handleClose();
+      onClose();
     } catch (error) {
-      message.destroy(); // 清除可能的loading消息
-      console.error("创建失败:", error);
-      const errorMessage = error instanceof Error ? error.message : "创建失败";
-      message.error(errorMessage);
+      console.error("操作失败:", error);
+      message.error("操作失败，请重试");
+    } finally {
+      setConfirmLoading(false);
     }
   };
 
   // 关闭抽屉
   const handleClose = () => {
-    const uploadingFiles = fileList.filter((f) => f.tosStatus === "uploading");
-    const pendingFiles = fileList.filter((f) => f.tosStatus === "pending");
-    const completedFiles = fileList.filter(
-      (f) => f.tosStatus === "completed" && f.materialStatus === "pending"
-    );
-
-    // 如果有文件正在上传或等待上传，需要确认
-    if (uploadingFiles.length > 0 || pendingFiles.length > 0) {
-      Modal.confirm({
-        title: "确认关闭？",
-        content: `还有 ${
-          uploadingFiles.length + pendingFiles.length
-        } 个文件未完成上传，关闭后将先创建文件夹结构，然后这些文件转为后台上传。`,
-        okText: "转为后台上传",
-        cancelText: "继续等待",
-        onOk: async () => {
-          try {
-            // 1. 先创建文件夹结构
-            let folderIdMap: Map<string, number> | undefined;
-            if (folderStructure && folderStructure.folderPaths.length > 0) {
-              message.loading("正在创建文件夹结构...", 0);
-              folderIdMap = await createFolderStructure(
-                folderStructure.folderPaths,
-                currentFolderId
-              );
-              message.destroy();
-            }
-
-            // 2. 处理已完成上传但未创建素材的文件
-            if (completedFiles.length > 0) {
-              if (folderIdMap) {
-                await batchCreateMaterialsWithFolders(
-                  completedFiles,
-                  folderIdMap
-                );
-              } else {
-                // 如果没有文件夹结构，使用普通的批量创建
-                const { batchCreateMaterials } = useMaterialStore.getState();
-                await batchCreateMaterials(completedFiles);
-              }
-            }
-
-            // 3. 将未完成的文件转为后台任务
-            const backgroundTasks = [...uploadingFiles, ...pendingFiles];
-            if (backgroundTasks.length > 0) {
-              startBackgroundUpload(backgroundTasks, folderIdMap);
-              message.info(
-                `文件夹结构已创建，${backgroundTasks.length} 个文件已转为后台上传`
-              );
-            }
-
-            onSuccess(); // 刷新页面数据
-            doClose();
-          } catch (error) {
-            message.destroy();
-            console.error("处理关闭失败:", error);
-            message.error("处理失败，请重试");
-          }
-        },
-      });
-    } else {
-      doClose();
-    }
+    // 停止上传 + 删除任务（完全清理前台任务）
+    clearForegroundTasks();
+    // 重置文件夹名
+    setFolderName("");
+    // 关闭抽屉
+    onClose();
   };
 
-  const doClose = () => {
-    setFileList([]);
-    setFolderStructure(null);
-    onClose();
+  // 取消单个文件上传
+  const handleCancelFile = (fileId: string) => {
+    // 停止上传 + 删除任务（完全清理）
+    clearTask(fileId);
   };
 
   // 移除文件
   const handleRemoveFile = (fileId: string) => {
-    setFileList((prev) => prev.filter((file) => file.id !== fileId));
+    // 仅删除任务（不停止上传，用于后台上传场景）
+    clearTask(fileId);
   };
 
   // 选择文件夹按钮点击
@@ -282,10 +181,23 @@ const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
     folderInputRef.current?.click();
   };
 
-  const completedCount = fileList.filter(
-    (f) => f.tosStatus === "completed"
-  ).length;
-  const totalCount = fileList.length;
+  // 计算确定按钮状态 - 只基于前台任务
+  const getConfirmButtonState = () => {
+    const foregroundTasks = getTasksByLocation("foreground");
+    const foregroundStats = getTaskStats(foregroundTasks);
+
+    const hasFiles =
+      foregroundTasks?.filter(
+        (task) => task.status === "uploading" || task.status === "completed"
+      ).length > 0;
+
+    return {
+      disabled: !hasFiles || !folderName, // 需要有文件且已选择文件夹
+      text: `确定 (${foregroundStats.completed}/${foregroundTasks.length})`,
+    };
+  };
+
+  const confirmButtonState = getConfirmButtonState();
 
   return (
     <BaseUploadDrawer
@@ -293,11 +205,20 @@ const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
       visible={visible}
       onClose={handleClose}
       onConfirm={handleConfirm}
-      confirmText={`确定 (${completedCount}/${totalCount})`}
-      confirmDisabled={!allTOSCompleted || fileList.length === 0}
-      confirmLoading={isUploading}
+      confirmText={confirmButtonState.text}
+      confirmDisabled={confirmButtonState.disabled}
+      confirmLoading={confirmLoading}
     >
       <div className={styles.uploadFolderDrawer}>
+        {/* 提示信息 */}
+        <Alert
+          description="确定后，未完成的文件会自动转为后台任务继续上传"
+          type="info"
+          icon={<InfoCircleOutlined />}
+          showIcon
+          className={styles.tipAlert}
+        />
+
         {/* 文件夹选择区域 */}
         <div className={styles.selectSection}>
           <Title level={4}>选择文件夹</Title>
@@ -305,94 +226,62 @@ const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
             size="large"
             icon={<FolderOpenOutlined />}
             onClick={handleSelectFolder}
-            disabled={isUploading}
+            disabled={isForegroundUploading()}
             block
           >
             选择文件夹
           </Button>
           <Text type="secondary" className={styles.hint}>
-            将保持原有文件夹结构，并创建到
-            {currentFolderId ? "当前文件夹" : "根目录"}下
+            选择包含多个文件的文件夹进行批量上传
           </Text>
 
-          {/* 隐藏的文件输入 */}
+          {/* 隐藏的文件夹输入 */}
           <input
             ref={folderInputRef}
             type="file"
-            // @ts-expect-error - webkitdirectory 是非标准属性
-            webkitdirectory=""
+            {...({ webkitdirectory: "" } as any)}
             style={{ display: "none" }}
             onChange={handleFolderSelect}
           />
         </div>
 
-        {/* 文件夹信息 */}
-        {folderStructure && (
+        {/* 文件夹信息显示 */}
+        {folderName && (
           <div className={styles.folderInfo}>
-            <div className={styles.folderInfoHeader}>
-              <Text strong>文件夹：{folderStructure.rootFolderName}</Text>
-              <Text type="secondary">
-                {" "}
-                ({folderStructure.fileCount} 个文件)
-              </Text>
-            </div>
-            <div className={styles.folderInfoDetails}>
-              <Text type="secondary" className={styles.folderDetail}>
-                📁 {folderStructure.folderPaths.length} 个子文件夹
-              </Text>
-              <Text type="secondary" className={styles.folderDetail}>
-                📊 最大层级深度：{folderStructure.maxDepth}
-              </Text>
-            </div>
-            {/* 显示文件夹结构预览（仅显示前几个） */}
-            {folderStructure.folderPaths.length > 0 && (
-              <div className={styles.folderPreview}>
-                <Text type="secondary" className={styles.previewTitle}>
-                  文件夹结构预览：
-                </Text>
-                {folderStructure.folderPaths.slice(0, 3).map((path) => (
-                  <Text
-                    key={path}
-                    type="secondary"
-                    className={styles.previewPath}
-                  >
-                    📁 {path}
-                  </Text>
-                ))}
-                {folderStructure.folderPaths.length > 3 && (
-                  <Text type="secondary" className={styles.previewMore}>
-                    ... 还有 {folderStructure.folderPaths.length - 3} 个文件夹
-                  </Text>
-                )}
-              </div>
-            )}
+            <Title level={5}>选择的文件夹</Title>
+            <Tag color="blue" className={styles.folderTag}>
+              <FolderOpenOutlined /> {folderName}
+            </Tag>
           </div>
         )}
 
         {/* 文件列表区域 */}
-        {fileList.length > 0 ? (
+        {foregroundTasks.length > 0 ? (
           <>
             <Divider />
             <div className={styles.fileListSection}>
-              <Title level={5}>文件夹内容 ({fileList.length})</Title>
+              <Title level={5}>文件列表 ({foregroundTasks.length})</Title>
 
-              {/* 进度条 */}
-              <ProgressBar fileList={fileList} isUploading={isUploading} />
+              {/* 进度条 - 只显示前台任务进度 */}
+              <ProgressBar
+                fileList={foregroundTasks}
+                isUploading={isUploading()}
+              />
 
               {/* 上传操作按钮 */}
               <UploadActions
-                isUploading={isUploading}
-                hasFiles={fileList.length > 0}
+                isUploading={isForegroundUploading()}
+                hasFiles={foregroundTasks.length > 0}
                 onStartUpload={handleStartUpload}
-                uploadButtonText="开始上传文件夹"
               />
 
-              {/* 文件列表 */}
+              {/* 文件列表 - 只显示前台任务 */}
               <FileList
-                fileList={fileList}
+                fileList={foregroundTasks}
                 onRemoveFile={handleRemoveFile}
-                disabled={isUploading}
-                showPath={true} // 显示文件路径
+                onCancelFile={handleCancelFile}
+                disabled={isUploading()}
+                showPath={true} // 文件夹上传时显示相对路径
               />
             </div>
           </>

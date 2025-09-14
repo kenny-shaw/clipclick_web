@@ -3,8 +3,12 @@
   display: flex;
   flex-direction: column;
 
+  .tipAlert {
+    margin-bottom: 16px;
+  }
+
   .selectSection {
-    padding-bottom: 16px;
+    padding-bottom: 24px;
 
     .ant-btn {
       height: 60px;
@@ -30,53 +34,20 @@
   .folderInfo {
     padding: 16px;
     background: #f5f5f5;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
 
-    .folderInfoHeader {
+    .ant-typography {
       margin-bottom: 8px;
-
-      .ant-typography {
-        margin: 0;
-      }
     }
 
-    .folderInfoDetails {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 8px;
+    .folderTag {
+      font-size: 14px;
+      padding: 4px 12px;
+      border-radius: 4px;
 
-      .folderDetail {
-        font-size: 12px;
-        margin: 0;
-      }
-    }
-
-    .folderPreview {
-      border-top: 1px solid #e8e8e8;
-      padding-top: 8px;
-      margin-top: 8px;
-
-      .previewTitle {
-        font-size: 12px;
-        font-weight: 500;
-        margin: 0 0 4px 0;
-        display: block;
-      }
-
-      .previewPath {
-        font-size: 11px;
-        font-family: monospace;
-        display: block;
-        margin: 0 0 2px 0;
-        padding-left: 8px;
-      }
-
-      .previewMore {
-        font-size: 11px;
-        margin: 4px 0 0 8px;
-        display: block;
-        font-style: italic;
+      .anticon {
+        margin-right: 4px;
       }
     }
   }

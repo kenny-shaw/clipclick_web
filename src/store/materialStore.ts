@@ -16,7 +16,11 @@ import type { UploadProgress } from '@/utils/tos';
 import TOS from '@volcengine/tos-sdk';
 import type { UploadTask, TaskStats } from '@/types/upload';
 import { getTaskStats, createUploadTask } from '@/utils/taskManager';
+import { ConcurrencyLimiter } from '@/utils/concurrencyLimiter';
 import { useAuthStore } from './authStore';
+
+// 全局并发限制器实例
+const globalUploadLimiter = new ConcurrencyLimiter(1);
 
 // 面包屑导航项
 export interface BreadcrumbItem {
@@ -24,35 +28,7 @@ export interface BreadcrumbItem {
     name: string;
 }
 
-// 上传文件信息 - 保持向后兼容
-export interface UploadFileInfo {
-    id: string;
-    file: File;
-    relativePath?: string; // 文件夹上传时的相对路径
-    targetFolderId?: number; // 目标文件夹ID
-    tosPath: string; // 完整的TOS路径
-
-    // TOS上传状态
-    tosStatus: 'pending' | 'uploading' | 'completed' | 'error' | 'cancelled';
-    tosProgress: number;
-    tosUrl?: string;
-
-    // 素材创建状态
-    materialStatus: 'pending' | 'creating' | 'completed' | 'error' | 'cancelled';
-    materialId?: number;
-
-    // 错误信息
-    error?: string;
-
-    // 任务转移标记
-    transferredToBackground?: boolean; // 是否已转移到后台任务
-
-    // 上传控制
-    cancelTokenSource?: unknown; // TOS CancelTokenSource
-    checkpoint?: unknown; // TOS 断点信息
-}
-
-// 新的统一任务接口 - 直接使用 UploadTask
+// 统一任务接口 - 直接使用 UploadTask
 export type MaterialUploadTask = UploadTask;
 
 interface MaterialState {
@@ -72,7 +48,6 @@ interface MaterialState {
 
     // 当前文件夹状态
     currentFolderId: number | null;
-    breadcrumbs: BreadcrumbItem[];
 
     // 操作状态
     isCreatingFolder: boolean;
@@ -80,18 +55,16 @@ interface MaterialState {
 
     // 新的统一任务管理状态
     uploadTasks: MaterialUploadTask[];
-    isUploading: boolean;
-    uploadProgress: number; // 整体上传进度
     backgroundTasksVisible: boolean; // 后台任务侧边栏是否可见
+    isConfirmingForegroundTasks: boolean; // 是否正在确认前台任务
 
 
-    // 上传控制状态
-    uploadCancelTokens: Map<string, unknown>; // 存储取消令牌
 
     // 文件夹操作
     fetchFolderList: (params?: FolderListParams) => Promise<void>;
     createFolder: (params: CreateFolderParams) => Promise<void>;
-    setCurrentFolder: (folderId: number | null, folderName?: string) => void;
+    createFolderForUpload: (folderName: string) => Promise<number>;
+    setCurrentFolder: (folderId: number | null) => void;
 
     // 素材操作
     fetchMaterialList: (params?: MaterialListParams) => Promise<void>;
@@ -102,13 +75,11 @@ interface MaterialState {
 
     // 新的统一任务管理方法
     addTasks: (tasks: MaterialUploadTask[]) => void;
-    removeTask: (taskId: string) => void;
     updateTask: (taskId: string, updates: Partial<MaterialUploadTask>) => void;
-    clearTasks: () => void;
+    updateTasksTargetFolder: (folderId: number, folderName?: string) => void;
 
     // 任务转移
     transferTaskToBackground: (taskId: string) => void;
-    transferTaskToForeground: (taskId: string) => void;
     transferAllToBackground: () => void;
 
     // 任务过滤和查询
@@ -116,19 +87,40 @@ interface MaterialState {
     getTasksByStatus: (status: string) => MaterialUploadTask[];
     getTaskStats: () => TaskStats;
 
+    // 计算属性选择器
+    isForegroundUploading: () => boolean;
+    isBackgroundUploading: () => boolean;
+    isUploading: () => boolean;
+    uploadProgress: () => number;
+    breadcrumbs: () => BreadcrumbItem[];
+    getUploadingTasks: () => MaterialUploadTask[];
+
     // 上传控制
     startUpload: (taskIds?: string[], location?: 'foreground' | 'background') => Promise<void>;
     uploadSingleTask: (task: MaterialUploadTask) => Promise<void>;
-    createMaterialForTask: (taskId: string) => Promise<void>;
+    createMaterialForTask: (taskId: string, shouldRemoveTask?: boolean) => Promise<void>;
+    confirmForegroundTasks: () => Promise<{ completedCount: number; transferredCount: number }>;
+
+    // Cancel = 停止上传，任务保留（状态变为 cancelled）
     cancelTask: (taskId: string) => void;
     cancelAllTasks: () => void;
-    pauseTask: (taskId: string) => void;
-    resumeTask: (taskId: string) => void;
+    cancelForegroundTasks: () => void;
+
+    // Clear = 停止上传 + 删除任务（完全清理）
+    clearTask: (taskId: string) => void;
+    clearAllTasks: () => void;
+    clearForegroundTasks: () => void;
+
+    // Remove = 仅删除任务
+    removeTask: (taskId: string) => void;
+    removeAllTasks: () => void;
+    removeForegroundTasks: () => void;
 
     addTaskFromFile: (file: File, options?: {
         relativePath?: string;
         targetFolderId?: number;
         location?: 'foreground' | 'background';
+        folderName?: string; // 文件夹上传时的文件夹名称
     }) => MaterialUploadTask;
 
 
@@ -138,10 +130,10 @@ interface MaterialState {
     // 后台任务管理
     toggleBackgroundTasksVisible: () => void;
 
+
     // 导航操作
     navigateToFolder: (folderId: number, folderName: string) => void;
     navigateToRoot: () => void;
-    buildBreadcrumbs: (folderId: number | null, folderName?: string) => void;
 
     // 清空状态
     clearState: () => void;
@@ -162,20 +154,15 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     materialsPageSize: 20,
 
     currentFolderId: null,
-    breadcrumbs: [{ id: 0, name: '素材库' }],
 
     isCreatingFolder: false,
     isCreatingMaterial: false,
 
     // 新的统一任务管理初始状态
     uploadTasks: [],
-    isUploading: false,
-    uploadProgress: 0,
     backgroundTasksVisible: false,
+    isConfirmingForegroundTasks: false,
 
-
-    // 上传控制初始状态
-    uploadCancelTokens: new Map(),
 
     // 获取文件夹列表
     fetchFolderList: async (params = {}) => {
@@ -223,6 +210,35 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             console.error('创建文件夹失败:', error);
             set({ isCreatingFolder: false });
             message.error('创建文件夹失败');
+            throw error;
+        }
+    },
+
+    // 为上传创建文件夹
+    createFolderForUpload: async (folderName: string) => {
+        try {
+            // 生成唯一的TOS路径
+            const tosPath = `folders/${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            const response = await MaterialService.createFolder({
+                name: folderName,
+                parentId: 0, // 根目录
+                isPublic: 0,
+                vectorIndex: tosPath // 将TOS路径存储在vectorIndex字段中
+            });
+
+            if (response.code === 200) {
+                const folderId = (response as { data?: { id?: number } }).data?.id;
+                if (folderId) {
+                    return folderId;
+                } else {
+                    throw new Error('创建文件夹失败：未返回文件夹ID');
+                }
+            } else {
+                throw new Error(response.msg || '创建文件夹失败');
+            }
+        } catch (error) {
+            console.error('创建文件夹失败:', error);
             throw error;
         }
     },
@@ -283,14 +299,13 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     },
 
     // 设置当前文件夹
-    setCurrentFolder: (folderId: number | null, folderName?: string) => {
+    setCurrentFolder: (folderId: number | null) => {
         set({ currentFolderId: folderId });
-        get().buildBreadcrumbs(folderId, folderName);
     },
 
     // 导航到文件夹
-    navigateToFolder: (folderId: number, folderName: string) => {
-        get().setCurrentFolder(folderId, folderName);
+    navigateToFolder: (folderId: number) => {
+        get().setCurrentFolder(folderId);
         // 清空素材列表，准备加载新的
         set({ materials: [] });
     },
@@ -302,16 +317,6 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         set({ materials: [] });
     },
 
-    // 构建面包屑导航
-    buildBreadcrumbs: (folderId: number | null, folderName?: string) => {
-        const breadcrumbs: BreadcrumbItem[] = [{ id: 0, name: '素材库' }];
-
-        if (folderId && folderName) {
-            breadcrumbs.push({ id: folderId, name: folderName });
-        }
-
-        set({ breadcrumbs });
-    },
 
     // 检测文件类型
     detectFileCategory: (file: File): number => {
@@ -394,6 +399,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         }));
     },
 
+    // Remove = 仅删除任务（不停止上传，用于后台上传场景）
     removeTask: (taskId: string) => {
         set(state => ({
             uploadTasks: state.uploadTasks.filter(task => task.id !== taskId)
@@ -410,23 +416,34 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         }));
     },
 
-    clearTasks: () => {
-        set({ uploadTasks: [] });
+    // 更新任务的targetFolderId（用于文件夹上传）
+    updateTasksTargetFolder: (folderId: number, folderName?: string) => {
+        set(state => ({
+            uploadTasks: state.uploadTasks.map(task => {
+                // 只更新有folderName且targetFolderId为undefined的任务
+                if (task.folderName === folderName && task.targetFolderId === undefined) {
+                    return {
+                        ...task,
+                        targetFolderId: folderId,
+                        updatedAt: Date.now()
+                    };
+                }
+                return task;
+            })
+        }));
     },
+
 
     transferTaskToBackground: (taskId: string) => {
         get().updateTask(taskId, { location: 'background' });
     },
 
-    transferTaskToForeground: (taskId: string) => {
-        get().updateTask(taskId, { location: 'foreground' });
-    },
 
     transferAllToBackground: () => {
         set(state => ({
             uploadTasks: state.uploadTasks.map(task => ({
                 ...task,
-                location: 'background',
+                location: 'background' as const,
                 updatedAt: Date.now()
             }))
         }));
@@ -444,7 +461,55 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         return getTaskStats(get().uploadTasks);
     },
 
-    startUpload: async (taskIds?: string[], location?: 'foreground' | 'background') => {
+    // 计算属性选择器实现
+    isForegroundUploading: () => {
+        return get().uploadTasks.some(
+            task => task.location === 'foreground' && task.status === 'uploading'
+        );
+    },
+
+    isBackgroundUploading: () => {
+        return get().uploadTasks.some(
+            task => task.location === 'background' && task.status === 'uploading'
+        );
+    },
+
+
+    getUploadingTasks: () => {
+        return get().uploadTasks.filter(task => task.status === 'uploading');
+    },
+
+    isUploading: () => {
+        return get().uploadTasks.some(task => task.status === 'uploading');
+    },
+
+    uploadProgress: () => {
+        const uploadingTasks = get().uploadTasks.filter(task => task.status === 'uploading');
+        if (uploadingTasks.length === 0) {
+            return 0;
+        }
+
+        const totalProgress = uploadingTasks.reduce((sum, task) => sum + task.progress, 0);
+        return Math.round(totalProgress / uploadingTasks.length);
+    },
+
+    breadcrumbs: () => {
+        const { currentFolderId, folders } = get();
+        const breadcrumbs: BreadcrumbItem[] = [{ id: 0, name: '素材库' }];
+
+        if (currentFolderId) {
+            // 这里需要根据文件夹ID查找文件夹名称
+            // 由于当前没有完整的文件夹树结构，暂时简化处理
+            const folder = folders.find(f => f.id === currentFolderId);
+            if (folder) {
+                breadcrumbs.push({ id: currentFolderId, name: folder.name });
+            }
+        }
+
+        return breadcrumbs;
+    },
+
+    startUpload: async (taskIds?: string[], location: 'foreground' | 'background' = 'foreground') => {
         const { uploadTasks } = get();
         const tasksToUpload = taskIds
             ? uploadTasks.filter(task => taskIds.includes(task.id))
@@ -459,16 +524,28 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             return;
         }
 
-        // 只有前台任务才设置全局上传状态
-        if (!location || location === 'foreground') {
-            set({ isUploading: true, uploadProgress: 0 });
-        }
-
         try {
-            // 并行上传所有任务
-            const uploadPromises = tasksToUpload.map(task =>
-                get().uploadSingleTask(task)
-            );
+            // 使用全局并发限制器控制上传任务
+            const uploadPromises = tasksToUpload.map(async task => {
+                // 获取并发许可
+                await globalUploadLimiter.acquire();
+
+                // 获取许可后立即检查任务是否还存在且未被取消
+                const currentTask = get().uploadTasks.find(t => t.id === task.id);
+                if (!currentTask || currentTask.status === 'cancelled' || currentTask.location !== 'foreground') {
+                    console.log(`任务 ${task.id} 已被取消或删除，跳过上传`);
+                    globalUploadLimiter.release();
+                    return;
+                }
+
+                try {
+                    await get().uploadSingleTask(task);
+                } finally {
+                    // 释放并发许可
+                    globalUploadLimiter.release();
+                }
+            });
+
             await Promise.allSettled(uploadPromises);
 
             const successCount = tasksToUpload.filter(task => {
@@ -480,20 +557,10 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
                 const locationText = location === 'background' ? '后台' : '';
                 message.success(`成功上传 ${successCount} 个文件${locationText}`);
             }
-
-            // 只有前台任务才设置全局进度
-            if (!location || location === 'foreground') {
-                set({ uploadProgress: 100 });
-            }
         } catch (error) {
             console.error('批量上传失败:', error);
             const locationText = location === 'background' ? '后台' : '';
             message.error(`${locationText}上传失败，请重试`);
-        } finally {
-            // 只有前台任务才重置全局上传状态
-            if (!location || location === 'foreground') {
-                set({ isUploading: false });
-            }
         }
     },
 
@@ -538,12 +605,18 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
 
             // 重新获取任务的最新状态，因为可能在上传过程中被转移到了后台
             const currentTask = get().uploadTasks.find(t => t.id === task.id);
+            const isConfirmingForeground = get().isConfirmingForegroundTasks;
             console.log('currentTask.location', currentTask?.location);
+            console.log('isConfirmingForeground', isConfirmingForeground);
 
-            // 根据任务位置决定是否立即创建素材
-            // 后台任务立即创建素材，前台任务等待用户确认
+            // 根据任务位置和锁状态决定处理方式
             if (currentTask?.location === 'background') {
+                // 后台任务立即创建素材
                 await get().createMaterialForTask(task.id);
+            } else if (currentTask?.location === 'foreground' && isConfirmingForeground) {
+                // 前台任务且在确认过程中，立即创建素材并转移到后台
+                await get().createMaterialForTask(task.id, true);
+                get().transferTaskToBackground(task.id);
             }
 
         } catch (error) {
@@ -568,7 +641,7 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
     },
 
     // 为任务创建素材
-    createMaterialForTask: async (taskId: string) => {
+    createMaterialForTask: async (taskId: string, shouldRemoveTask: boolean = false) => {
         const task = get().uploadTasks.find(t => t.id === taskId);
         if (!task || !task.tosUrl) {
             throw new Error('任务不存在或TOS URL不存在');
@@ -610,6 +683,11 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
 
                 // 静默刷新素材列表
                 get().fetchMaterialList();
+
+                // 如果需要删除任务，创建成功后删除
+                if (shouldRemoveTask) {
+                    get().removeTask(taskId);
+                }
             } else {
                 throw new Error(response.msg || '创建素材失败');
             }
@@ -622,7 +700,60 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             });
         }
     },
+    confirmForegroundTasks: async () => {
+        // 设置确认锁，防止上传过程中的竞态条件
+        set({ isConfirmingForegroundTasks: true });
 
+        try {
+            const foregroundTasks = get().uploadTasks.filter(task => task.location === 'foreground');
+
+            if (foregroundTasks.length === 0) {
+                return { completedCount: 0, transferredCount: 0 };
+            }
+
+            // 1. 先确定哪些是未完成的任务（在创建素材之前确定，避免竞态条件）
+            const incompleteTasks = foregroundTasks.filter(task => task.status !== 'completed');
+
+            // 2. 为已完成上传的文件创建素材
+            const completedTasks = foregroundTasks.filter(
+                task => task.status === 'completed' && task.materialStatus === 'pending'
+            );
+
+            let completedCount = 0;
+            let transferredCount = 0;
+
+            // 并行创建所有已上传完成的素材
+            if (completedTasks.length > 0) {
+                const createPromises = completedTasks.map(async (task) => {
+                    try {
+                        await get().createMaterialForTask(task.id, true); // 创建成功后删除任务
+                        return true;
+                    } catch (error) {
+                        console.error(`创建素材失败 [${task.file.name}]:`, error);
+                        throw error;
+                    }
+                });
+
+                const results = await Promise.allSettled(createPromises);
+                completedCount = results.filter(result => result.status === 'fulfilled').length;
+            }
+
+            // 3. 将未完成的任务转移到后台
+            if (incompleteTasks.length > 0) {
+                incompleteTasks.forEach(task => {
+                    get().transferTaskToBackground(task.id);
+                });
+                transferredCount = incompleteTasks.length;
+            }
+
+            return { completedCount, transferredCount };
+        } finally {
+            // 释放确认锁
+            set({ isConfirmingForegroundTasks: false });
+        }
+    },
+
+    // Cancel = 停止上传，任务保留（状态变为 cancelled）
     cancelTask: (taskId: string) => {
         const task = get().uploadTasks.find(t => t.id === taskId);
         if (task?.cancelTokenSource) {
@@ -634,6 +765,52 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         });
     },
 
+    // Clear = 停止上传 + 删除任务（完全清理）
+    clearTask: (taskId: string) => {
+        // 先取消上传
+        get().cancelTask(taskId);
+        // 然后删除任务
+        get().removeTask(taskId);
+    },
+
+    clearAllTasks: () => {
+        // 先取消所有任务的上传
+        get().cancelAllTasks();
+        // 然后删除所有任务
+        get().removeAllTasks();
+    },
+
+    clearForegroundTasks: () => {
+        const { uploadTasks } = get();
+        const foregroundTasks = uploadTasks.filter(task => task.location === 'foreground');
+
+        // 先取消所有前台任务的上传
+        foregroundTasks.forEach(task => {
+            if (task.cancelTokenSource) {
+                (task.cancelTokenSource as { cancel: (reason: string) => void }).cancel('用户关闭抽屉');
+            }
+        });
+
+        // 然后删除所有前台任务
+        set(state => ({
+            uploadTasks: state.uploadTasks.filter(task => task.location !== 'foreground')
+        }));
+    },
+
+    // Remove = 仅删除任务（不停止上传，用于后台上传场景）
+    removeAllTasks: () => {
+        set({
+            uploadTasks: []
+        });
+    },
+
+    removeForegroundTasks: () => {
+        set(state => ({
+            uploadTasks: state.uploadTasks.filter(task => task.location !== 'foreground')
+        }));
+    },
+
+    // Cancel = 停止上传，任务保留（状态变为 cancelled）
     cancelAllTasks: () => {
         const { uploadTasks } = get();
         uploadTasks.forEach(task => {
@@ -651,14 +828,28 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         }));
     },
 
-    pauseTask: (taskId: string) => {
-        // TODO: 实现暂停逻辑
-        console.log('pauseTask called with taskId:', taskId);
-    },
+    cancelForegroundTasks: () => {
+        const { uploadTasks } = get();
+        const foregroundTasks = uploadTasks.filter(task => task.location === 'foreground');
 
-    resumeTask: (taskId: string) => {
-        // TODO: 实现恢复逻辑
-        console.log('resumeTask called with taskId:', taskId);
+        foregroundTasks.forEach(task => {
+            if (task.cancelTokenSource) {
+                (task.cancelTokenSource as { cancel: (reason: string) => void }).cancel('用户取消上传');
+            }
+        });
+
+        set(state => ({
+            uploadTasks: state.uploadTasks.map(task =>
+                task.location === 'foreground'
+                    ? {
+                        ...task,
+                        status: 'cancelled',
+                        error: '上传已取消',
+                        updatedAt: Date.now()
+                    }
+                    : task
+            )
+        }));
     },
 
     toggleBackgroundTasksVisible: () => {
@@ -671,11 +862,13 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
 
 
 
+
     // 从文件创建任务
     addTaskFromFile: (file: File, options?: {
         relativePath?: string;
         targetFolderId?: number;
         location?: 'foreground' | 'background';
+        folderName?: string; // 文件夹上传时的文件夹名称
     }) => {
         // 获取当前用户的tenant ID
         const authState = useAuthStore.getState();
@@ -686,7 +879,8 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             targetFolderId: options?.targetFolderId,
             tenantId: tenantId,
             folderId: options?.targetFolderId,
-            location: options?.location || 'foreground'
+            location: options?.location || 'foreground',
+            folderName: options?.folderName
         });
         return task;
     },
@@ -707,20 +901,18 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             materialsPageSize: 20,
 
             currentFolderId: null,
-            breadcrumbs: [{ id: 0, name: '素材库' }],
 
             isCreatingFolder: false,
             isCreatingMaterial: false,
 
             // 清空新的统一任务状态
             uploadTasks: [],
-            isUploading: false,
-            uploadProgress: 0,
             backgroundTasksVisible: false,
+            isConfirmingForegroundTasks: false,
 
-
-            // 清空上传控制状态
-            uploadCancelTokens: new Map(),
         });
+
+        // 重置全局并发限制器
+        globalUploadLimiter.reset();
     },
 }));
