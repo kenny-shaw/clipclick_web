@@ -5,7 +5,6 @@ import {
   FileImageOutlined,
   ShoppingOutlined,
   PlayCircleOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import styles from "./index.module.scss";

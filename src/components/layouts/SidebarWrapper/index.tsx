@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import StudioSidebar from "@/components/StudioSidebar";
-import { LAYOUT_CONSTANTS } from "@/constants/layout";
 import styles from "./index.module.scss";
 
 export type SidebarType = "studio" | "assets" | "admin";

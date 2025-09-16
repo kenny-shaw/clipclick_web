@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Card, Typography, Button, Space, Empty } from "antd";
-import { PlusOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { PlayCircleOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import styles from "./index.module.scss";
 

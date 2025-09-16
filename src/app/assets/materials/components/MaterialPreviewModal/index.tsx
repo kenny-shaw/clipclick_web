@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Image, Typography, Tag, Space } from "antd";
+import { Modal, Image, Typography, Tag } from "antd";
 import {
   FileImageOutlined,
   VideoCameraOutlined,

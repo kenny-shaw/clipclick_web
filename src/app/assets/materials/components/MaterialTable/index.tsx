@@ -52,6 +52,7 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
 
   // 获取素材类型图标
   const getMaterialIcon = (url: string, category: number) => {
+    console.log(category);
     const extension = url.split(".").pop()?.toLowerCase();
 
     // 根据文件扩展名判断类型

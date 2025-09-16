@@ -1,8 +1,6 @@
 import React from "react";
-import { Drawer, Button, Space, Typography } from "antd";
+import { Drawer, Button, Space } from "antd";
 import styles from "./index.module.scss";
-
-const { Title } = Typography;
 
 interface BaseUploadDrawerProps {
   title: string;

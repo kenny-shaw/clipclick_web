@@ -90,6 +90,5 @@ export interface FolderListResponse {
 }
 
 // 文件夹详情响应类型
-export interface FolderDetailResponse extends FolderInfo {
-    // 可以扩展更多详情字段，目前使用FolderInfo作为基础
-} 
+export type FolderDetailResponse = FolderInfo;
+// 可以扩展更多详情字段，目前使用FolderInfo作为基础

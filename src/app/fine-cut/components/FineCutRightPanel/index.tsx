@@ -145,7 +145,7 @@ const FineCutRightPanel: React.FC<FineCutRightPanelProps> = ({ videos }) => {
         <div className={styles.videoMeta}>
           <Text type="secondary">
             <VideoCameraOutlined style={{ marginRight: 4 }} />
-            主视频: {video.mainVideoName}
+            主视频: {video.title}
           </Text>
         </div>
 
@@ -210,7 +210,7 @@ const FineCutRightPanel: React.FC<FineCutRightPanelProps> = ({ videos }) => {
             <div className={styles.videoMeta}>
               <Text type="secondary">
                 <VideoCameraOutlined style={{ marginRight: 4 }} />
-                主视频: {video.mainVideoName}
+                主视频: {video.title}
               </Text>
             </div>
           </div>

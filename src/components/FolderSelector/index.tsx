@@ -13,7 +13,7 @@ const { Option } = Select;
 
 interface FolderSelectorProps {
   value?: number;
-  onChange?: (value: number) => void;
+  onChange?: (value?: number) => void;
   placeholder?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
@@ -39,7 +39,6 @@ const FolderSelector = forwardRef<FolderSelectorRef, FolderSelectorProps>(
   ) => {
     const [loading, setLoading] = useState(false);
     const [folders, setFolders] = useState<FolderInfo[]>([]);
-    const [searchValue, setSearchValue] = useState("");
     const selectRef = React.useRef<any>(null);
 
     // 暴露给父组件的方法
@@ -80,7 +79,6 @@ const FolderSelector = forwardRef<FolderSelectorRef, FolderSelectorProps>(
 
     // 搜索处理
     const handleSearch = (value: string) => {
-      setSearchValue(value);
       loadFolders(value);
     };
 
@@ -91,7 +89,7 @@ const FolderSelector = forwardRef<FolderSelectorRef, FolderSelectorProps>(
 
     // 清空处理
     const handleClear = () => {
-      onChange?.(undefined as any);
+      onChange?.(undefined);
     };
 
     return (

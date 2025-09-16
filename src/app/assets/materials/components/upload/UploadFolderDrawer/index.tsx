@@ -239,7 +239,7 @@ const UploadFolderDrawer: React.FC<UploadFolderDrawerProps> = ({
           <input
             ref={folderInputRef}
             type="file"
-            {...({ webkitdirectory: "" } as any)}
+            {...{ webkitdirectory: "" }}
             style={{ display: "none" }}
             onChange={handleFolderSelect}
           />
