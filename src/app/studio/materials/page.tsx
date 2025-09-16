@@ -32,7 +32,7 @@ const MaterialsPage = () => {
 
   const {
     currentFolderId,
-    breadcrumbs,
+    getBreadcrumbsForFolder,
     folders,
     foldersLoading,
     foldersTotal,
@@ -206,15 +206,16 @@ const MaterialsPage = () => {
     <div className={styles.materialsPage}>
       {/* 面包屑导航 */}
       <MaterialBreadcrumb
-        breadcrumbs={breadcrumbs()}
+        currentFolderId={currentFolderId}
         onBreadcrumbClick={handleBreadcrumbClick}
+        getBreadcrumbsForFolder={getBreadcrumbsForFolder}
       />
 
       {/* 页面头部 */}
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <Title level={2} className={styles.pageTitle}>
-            {isRoot ? "素材库" : breadcrumbs()[breadcrumbs().length - 1]?.name}
+            {isRoot ? "素材库" : "文件夹"}
           </Title>
           <p className={styles.pageDescription}>
             {isRoot

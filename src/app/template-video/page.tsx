@@ -4,8 +4,8 @@ import { Form, message } from "antd";
 import { useVideoStore } from "@/store/videoStore";
 import type { VideoItem, CreateVideoParams } from "@/api";
 import FullScreenLayout from "@/components/FullScreenLayout";
-import LeftPanel from "../studio/components/LeftPanel";
-import RightPanel from "../studio/components/RightPanel";
+import LeftPanel from "./components/LeftPanel";
+import RightPanel from "./components/RightPanel";
 import styles from "./index.module.scss";
 
 // 扩展VideoItem类型，添加status状态

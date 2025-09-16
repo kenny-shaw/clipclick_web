@@ -26,24 +26,16 @@ export type ProductListResponse = PaginatedResponse<Product>;
 export interface CreateProductParams {
     name: string;
     mainFolder: string;
-    mainFolderVectorIndex: string;
     captionFolder: string;
-    captionFolderVectorIndex: string;
     prefixFolder: string;
-    prefixFolderVectorIndex: string;
     picFolder: string;
-    picFolderVectorIndex: string;
 }
 
 // 更新商品参数
 export interface UpdateProductParams {
     name?: string;
     mainFolder?: string;
-    mainFolderVectorIndex?: string;
     captionFolder?: string;
-    captionFolderVectorIndex?: string;
     prefixFolder?: string;
-    prefixFolderVectorIndex?: string;
     picFolder?: string;
-    picFolderVectorIndex?: string;
 } 

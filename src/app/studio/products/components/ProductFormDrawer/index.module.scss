@@ -1,0 +1,145 @@
+.productFormDrawer {
+  :global(.ant-drawer-header) {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 24px;
+  }
+
+  :global(.ant-drawer-body) {
+    padding: 24px;
+  }
+
+  :global(.ant-drawer-footer) {
+    border-top: 1px solid #f0f0f0;
+    padding: 16px 24px;
+  }
+}
+
+.drawerTitle {
+  .title {
+    margin: 0 0 4px 0 !important;
+    color: #262626;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+.drawerFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.productForm {
+  .section {
+    margin-bottom: 32px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .sectionTitle {
+    margin: 0 0 12px 0 !important;
+    color: #262626;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: #1890ff;
+      border-radius: 2px;
+    }
+  }
+
+  .sectionDescription {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+// 表单项样式优化
+.productForm {
+  :global(.ant-form-item) {
+    margin-bottom: 20px;
+
+    .ant-form-item-label {
+      padding-bottom: 4px;
+
+      > label {
+        font-weight: 500;
+        color: #262626;
+
+        &.ant-form-item-required::before {
+          color: #ff4d4f;
+        }
+      }
+    }
+
+    .ant-form-item-control {
+      .ant-form-item-explain {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+  }
+
+  // 输入框样式
+  :global(.ant-input) {
+    border-radius: 6px;
+    border: 1px solid #d9d9d9;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #40a9ff;
+    }
+
+    &:focus,
+    &.ant-input-focused {
+      border-color: #40a9ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  // 选择器样式
+  :global(.ant-select) {
+    .ant-select-selector {
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #40a9ff;
+      }
+    }
+
+    &.ant-select-focused .ant-select-selector {
+      border-color: #40a9ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .productFormDrawer {
+    :global(.ant-drawer) {
+      width: 100% !important;
+    }
+  }
+
+  .productForm {
+    .section {
+      margin-bottom: 24px;
+    }
+  }
+}

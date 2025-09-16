@@ -26,6 +26,7 @@ const globalUploadLimiter = new ConcurrencyLimiter(1);
 export interface BreadcrumbItem {
     id: number;
     name: string;
+    parentId?: number; // 添加父文件夹ID，便于构建路径
 }
 
 // 统一任务接口 - 直接使用 UploadTask
@@ -49,6 +50,10 @@ interface MaterialState {
     // 当前文件夹状态
     currentFolderId: number | null;
 
+    // 面包屑路径缓存
+    breadcrumbCache: Map<number, BreadcrumbItem[]>; // 缓存每个文件夹的完整路径
+    folderDetailCache: Map<number, FolderInfo>; // 缓存文件夹详情
+
     // 操作状态
     isCreatingFolder: boolean;
     isCreatingMaterial: boolean;
@@ -62,6 +67,7 @@ interface MaterialState {
 
     // 文件夹操作
     fetchFolderList: (params?: FolderListParams) => Promise<void>;
+    fetchFolderDetail: (folderId: number) => Promise<FolderInfo>;
     createFolder: (params: CreateFolderParams) => Promise<void>;
     createFolderForUpload: (folderName: string) => Promise<number>;
     setCurrentFolder: (folderId: number | null) => void;
@@ -92,7 +98,7 @@ interface MaterialState {
     isBackgroundUploading: () => boolean;
     isUploading: () => boolean;
     uploadProgress: () => number;
-    breadcrumbs: () => BreadcrumbItem[];
+    getBreadcrumbsForFolder: (folderId: number) => Promise<BreadcrumbItem[]>;
     getUploadingTasks: () => MaterialUploadTask[];
 
     // 上传控制
@@ -155,6 +161,10 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
 
     currentFolderId: null,
 
+    // 面包屑路径缓存初始状态
+    breadcrumbCache: new Map(),
+    folderDetailCache: new Map(),
+
     isCreatingFolder: false,
     isCreatingMaterial: false,
 
@@ -187,6 +197,37 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             console.error('获取文件夹列表失败:', error);
             set({ foldersLoading: false });
             message.error('获取文件夹列表失败');
+            throw error;
+        }
+    },
+
+    // 获取文件夹详情
+    fetchFolderDetail: async (folderId: number) => {
+        const { folderDetailCache } = get();
+
+        // 先检查缓存
+        if (folderDetailCache.has(folderId)) {
+            return folderDetailCache.get(folderId)!;
+        }
+
+        try {
+            const response = await MaterialService.getFolderDetail(folderId);
+
+            if (response.code === 200 && 'data' in response) {
+                const folderInfo = (response as { data: FolderInfo }).data;
+
+                // 更新缓存
+                set(state => ({
+                    folderDetailCache: new Map(state.folderDetailCache).set(folderId, folderInfo)
+                }));
+
+                return folderInfo;
+            } else {
+                throw new Error(response.msg || '获取文件夹详情失败');
+            }
+        } catch (error) {
+            console.error('获取文件夹详情失败:', error);
+            message.error('获取文件夹详情失败');
             throw error;
         }
     },
@@ -493,20 +534,53 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
         return Math.round(totalProgress / uploadingTasks.length);
     },
 
-    breadcrumbs: () => {
-        const { currentFolderId, folders } = get();
-        const breadcrumbs: BreadcrumbItem[] = [{ id: 0, name: '素材库' }];
 
-        if (currentFolderId) {
-            // 这里需要根据文件夹ID查找文件夹名称
-            // 由于当前没有完整的文件夹树结构，暂时简化处理
-            const folder = folders.find(f => f.id === currentFolderId);
-            if (folder) {
-                breadcrumbs.push({ id: currentFolderId, name: folder.name });
-            }
+    // 获取指定文件夹的完整面包屑路径
+    getBreadcrumbsForFolder: async (folderId: number) => {
+        const { breadcrumbCache, folderDetailCache } = get();
+
+        // 先检查缓存
+        if (breadcrumbCache.has(folderId)) {
+            return breadcrumbCache.get(folderId)!;
         }
 
-        return breadcrumbs;
+        try {
+            const path: BreadcrumbItem[] = [];
+            let currentFolderId = folderId;
+
+            // 从当前文件夹开始，向上查找父文件夹
+            while (currentFolderId && currentFolderId !== 0) {
+                let folderInfo: FolderInfo;
+
+                if (folderDetailCache.has(currentFolderId)) {
+                    folderInfo = folderDetailCache.get(currentFolderId)!;
+                } else {
+                    folderInfo = await get().fetchFolderDetail(currentFolderId);
+                }
+
+                path.unshift({
+                    id: folderInfo.id,
+                    name: folderInfo.name,
+                    parentId: folderInfo.parentId
+                });
+
+                currentFolderId = folderInfo.parentId;
+            }
+
+            // 添加根目录
+            path.unshift({ id: 0, name: '素材库' });
+
+            // 更新缓存
+            set(state => ({
+                breadcrumbCache: new Map(state.breadcrumbCache).set(folderId, path)
+            }));
+
+            return path;
+        } catch (error) {
+            console.error('构建面包屑路径失败:', error);
+            // 返回基础面包屑
+            return [{ id: 0, name: '素材库' }, { id: folderId, name: '未知文件夹' }];
+        }
     },
 
     startUpload: async (taskIds?: string[], location: 'foreground' | 'background' = 'foreground') => {
@@ -901,6 +975,10 @@ export const useMaterialStore = create<MaterialState>((set, get) => ({
             materialsPageSize: 20,
 
             currentFolderId: null,
+
+            // 清空面包屑缓存
+            breadcrumbCache: new Map(),
+            folderDetailCache: new Map(),
 
             isCreatingFolder: false,
             isCreatingMaterial: false,

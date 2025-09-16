@@ -26,3 +26,9 @@ export const getProductDetail = async (id: number): Promise<ApiResponse<Product>
     return response;
 };
 
+// 删除商品接口
+export const deleteProduct = async (id: number): Promise<ApiResponse> => {
+    const response = await post(`/clipclick/product/${id}/delete`);
+    return response;
+};
+

@@ -12,7 +12,7 @@ const navs = [{ key: "studio", label: "创作中心", path: "/studio" }];
 // 全屏模式页面配置
 const fullScreenPages = {
   "/template-video": "模板成片",
-  "/edit-video": "精剪成片",
+  "/fine-cut": "精剪成片",
 };
 
 const HeaderBar: React.FC = () => {

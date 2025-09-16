@@ -9,6 +9,7 @@ import {
   PlayCircleOutlined,
   ScissorOutlined,
   FileImageOutlined,
+  ShoppingOutlined,
 } from "@ant-design/icons";
 import { useStudioStore } from "@/store/studioStore";
 import { LAYOUT_CONSTANTS } from "@/constants/layout";
@@ -38,7 +39,7 @@ const StudioSidebar: React.FC = () => {
           label: "模板成片",
         },
         {
-          key: "/edit-video",
+          key: "/fine-cut",
           icon: <ScissorOutlined />,
           label: "精剪成片",
         },
@@ -46,6 +47,11 @@ const StudioSidebar: React.FC = () => {
           key: "/studio/materials",
           icon: <FileImageOutlined />,
           label: "素材库",
+        },
+        {
+          key: "/studio/products",
+          icon: <ShoppingOutlined />,
+          label: "商品库",
         },
         {
           key: "/studio/videos",
@@ -72,7 +78,7 @@ const StudioSidebar: React.FC = () => {
               label: "模板成片",
             },
             {
-              key: "/edit-video",
+              key: "/fine-cut",
               icon: <ScissorOutlined />,
               label: "精剪成片",
             },
@@ -87,6 +93,11 @@ const StudioSidebar: React.FC = () => {
               key: "/studio/materials",
               icon: <FileImageOutlined />,
               label: "素材库",
+            },
+            {
+              key: "/studio/products",
+              icon: <ShoppingOutlined />,
+              label: "商品库",
             },
             {
               key: "/studio/videos",

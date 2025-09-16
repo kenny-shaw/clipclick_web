@@ -23,7 +23,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({ form, loading, onGenerate }) => (
         requiredMark={false}
         className={styles.panelForm}
       >
-        <div>
+        <div className={styles.formContent}>
           <Form.Item
             label="商品链接"
             name="resourceUrl"

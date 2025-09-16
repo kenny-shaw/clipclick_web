@@ -1,0 +1,177 @@
+.leftPanel {
+  width: 424px;
+  min-width: 320px;
+  max-width: 420px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.panelCard {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(240, 235, 255, 0.85) 50%,
+    rgba(245, 240, 255, 0.9) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(103, 58, 183, 0.12),
+    0 2px 8px rgba(103, 58, 183, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  padding: 24px !important;
+  margin: 0;
+  color: #2c3e50;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panelTitle {
+  background: linear-gradient(135deg, #673ab7 0%, #9c27b0 50%, #e91e63 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 32px !important;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.panelForm {
+  margin-top: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: calc(100% - 80px);
+}
+
+/* 滚动条样式 - 默认隐藏，悬停显示 */
+.formContent {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.formContent:hover {
+  scrollbar-color: rgba(103, 58, 183, 0.3) transparent;
+}
+
+.formContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.formContent::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.formContent:hover::-webkit-scrollbar-thumb {
+  background: rgba(103, 58, 183, 0.3);
+}
+
+.generateBtn {
+  background: linear-gradient(
+    135deg,
+    #673ab7 0%,
+    #9c27b0 50%,
+    #e91e63 100%
+  ) !important;
+  border: none !important;
+  height: 52px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 26px !important;
+  box-shadow: 0 4px 16px rgba(103, 58, 183, 0.25),
+    0 2px 8px rgba(156, 39, 176, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: white !important;
+  margin-top: auto;
+}
+
+.generateBtn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(103, 58, 183, 0.35),
+    0 4px 12px rgba(156, 39, 176, 0.25) !important;
+}
+
+.generateBtn:active {
+  transform: translateY(0) !important;
+}
+
+// 表单样式优化
+.panelForm :global(.ant-form-item-label > label) {
+  color: #2c3e50 !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  margin-bottom: 8px !important;
+}
+
+.panelForm :global(.ant-form-item) {
+  margin-bottom: 24px !important;
+}
+
+.panelForm :global(.ant-input),
+.panelForm :global(.ant-select-selector) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(103, 58, 183, 0.2) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(245, 240, 255, 0.85) 100%
+  ) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.panelForm :global(.ant-input:hover),
+.panelForm :global(.ant-select-selector:hover) {
+  border-color: rgba(103, 58, 183, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(103, 58, 183, 0.15) !important;
+}
+
+.panelForm :global(.ant-input:focus),
+.panelForm :global(.ant-select-focused .ant-select-selector) {
+  border-color: #673ab7 !important;
+  box-shadow: 0 0 0 2px rgba(103, 58, 183, 0.2) !important;
+}
+
+// 素材展示区域样式
+.panelForm :global(.ant-form-item-control-input) {
+  min-height: auto !important;
+}
+
+// 表单内容区域
+.formContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  margin-right: -8px;
+  /* 确保滚动条始终存在 */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .leftPanel {
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .panelCard {
+    padding: 20px !important;
+  }
+}

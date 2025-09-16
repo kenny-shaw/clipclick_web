@@ -1,0 +1,232 @@
+.materialSelectorModal {
+  .ant-modal-body {
+    padding: 16px;
+  }
+}
+
+.materialSelector {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.searchBar {
+  margin-bottom: 16px;
+}
+
+.selectedInfo {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.materialList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 16px;
+}
+
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 8px;
+}
+
+.materialItem {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: white;
+
+  &:hover {
+    border-color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    border-color: #1890ff;
+    background: #e6f7ff;
+  }
+}
+
+.materialPreview {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(103, 58, 183, 0.2);
+  }
+}
+
+.videoPreview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+.playIcon {
+  font-size: 24px;
+  color: white;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+
+.materialPreview:hover .playIcon {
+  transform: scale(1.1);
+}
+
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.2s ease;
+}
+
+.materialPreview:hover .imagePreview {
+  transform: scale(1.05);
+}
+
+.filePreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.selectedOverlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.checkIcon {
+  color: white;
+  font-size: 14px;
+}
+
+.materialInfo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.materialName {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #2c3e50;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.materialMeta {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.previewContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.previewVideo {
+  border-radius: 8px;
+}
+
+.previewImage {
+  border-radius: 8px;
+}
+
+.previewFile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+// 自定义滚动条
+.materialList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.materialList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.materialList::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.materialList::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

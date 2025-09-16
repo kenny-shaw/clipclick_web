@@ -1,0 +1,25 @@
+.folderSelector {
+  width: 100%;
+
+  :global(.ant-select-selector) {
+    border-radius: 6px;
+  }
+}
+
+.folderOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.folderIcon {
+  color: #1890ff;
+  font-size: 14px;
+}
+
+.folderName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

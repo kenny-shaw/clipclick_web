@@ -87,4 +87,9 @@ export interface FolderInfo {
 export interface FolderListResponse {
     total: number;
     rows: FolderInfo[];
+}
+
+// 文件夹详情响应类型
+export interface FolderDetailResponse extends FolderInfo {
+    // 可以扩展更多详情字段，目前使用FolderInfo作为基础
 } 
