@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { Card, Row, Col, Statistic, Button, Typography, Space } from "antd";
+import { Card, Typography, Row, Col, Statistic, Button, Space } from "antd";
 import {
-  VideoCameraOutlined,
   FileImageOutlined,
+  ShoppingOutlined,
   PlayCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
@@ -12,24 +12,10 @@ import styles from "./index.module.scss";
 
 const { Title, Paragraph } = Typography;
 
-const StudioHome = () => {
+const AssetsHome = () => {
   const router = useRouter();
 
   const quickActions = [
-    {
-      title: "模板成片",
-      description: "使用预设模板快速生成视频",
-      icon: <PlayCircleOutlined />,
-      path: "/template-video",
-      color: "#1890ff",
-    },
-    {
-      title: "精剪成片",
-      description: "自由编辑，打造个性化视频",
-      icon: <VideoCameraOutlined />,
-      path: "/fine-cut",
-      color: "#52c41a",
-    },
     {
       title: "素材管理",
       description: "管理您的创作素材",
@@ -37,28 +23,31 @@ const StudioHome = () => {
       path: "/assets/materials",
       color: "#faad14",
     },
+    {
+      title: "商品管理",
+      description: "管理商品信息",
+      icon: <ShoppingOutlined />,
+      path: "/assets/products",
+      color: "#52c41a",
+    },
+    {
+      title: "成片管理",
+      description: "管理生成的视频",
+      icon: <PlayCircleOutlined />,
+      path: "/assets/videos",
+      color: "#1890ff",
+    },
   ];
 
   return (
-    <div className={styles.studioHome}>
+    <div className={styles.assetsHome}>
       <div className={styles.header}>
-        <Title level={2}>创作中心</Title>
-        <Paragraph>
-          欢迎来到 ClipClick AI 创作中心，开始您的视频创作之旅
-        </Paragraph>
+        <Title level={2}>资产管理</Title>
+        <Paragraph>统一管理您的素材、商品和成片资源</Paragraph>
       </div>
 
       {/* 数据统计 */}
       <Row gutter={16} className={styles.statsRow}>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="总视频数"
-              value={0}
-              prefix={<VideoCameraOutlined />}
-            />
-          </Card>
-        </Col>
         <Col span={6}>
           <Card>
             <Statistic
@@ -70,7 +59,20 @@ const StudioHome = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="本月创作" value={0} prefix={<PlusOutlined />} />
+            <Statistic
+              title="商品数量"
+              value={0}
+              prefix={<ShoppingOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="成片数量"
+              value={0}
+              prefix={<PlayCircleOutlined />}
+            />
           </Card>
         </Col>
         <Col span={6}>
@@ -105,25 +107,27 @@ const StudioHome = () => {
         </Row>
       </div>
 
-      {/* 最近项目 */}
-      <div className={styles.recentProjects}>
+      {/* 最近活动 */}
+      <div className={styles.recentActivity}>
         <div className={styles.sectionHeader}>
-          <Title level={3}>最近项目</Title>
+          <Title level={3}>最近活动</Title>
           <Button type="link">查看全部</Button>
         </div>
         <Card>
           <div className={styles.emptyState}>
-            <VideoCameraOutlined className={styles.emptyIcon} />
-            <Title level={4}>暂无项目</Title>
-            <Paragraph>开始您的第一个视频创作项目</Paragraph>
+            <FileImageOutlined className={styles.emptyIcon} />
+            <Title level={4}>暂无活动</Title>
+            <Paragraph>开始管理您的资源</Paragraph>
             <Space>
               <Button
                 type="primary"
-                onClick={() => router.push("/template-video")}
+                onClick={() => router.push("/assets/materials")}
               >
-                模板成片
+                素材管理
               </Button>
-              <Button onClick={() => router.push("/fine-cut")}>精剪成片</Button>
+              <Button onClick={() => router.push("/assets/products")}>
+                商品管理
+              </Button>
             </Space>
           </div>
         </Card>
@@ -132,4 +136,4 @@ const StudioHome = () => {
   );
 };
 
-export default StudioHome;
+export default AssetsHome;

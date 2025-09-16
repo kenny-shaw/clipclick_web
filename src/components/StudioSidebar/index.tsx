@@ -17,19 +17,54 @@ import styles from "./index.module.scss";
 
 const { Sider } = Layout;
 
-const StudioSidebar: React.FC = () => {
+interface StudioSidebarProps {
+  menuType?: "studio" | "assets" | "admin";
+}
+
+const StudioSidebar: React.FC<StudioSidebarProps> = ({
+  menuType = "studio",
+}) => {
   const router = useRouter();
   const pathname = usePathname();
   const { sidebarCollapsed, setSidebarCollapsed, openKeys, setOpenKeys } =
     useStudioStore();
 
-  // 菜单配置 - 根据收起状态动态调整
+  // 根据菜单类型获取菜单配置
+  const getMenuConfig = () => {
+    switch (menuType) {
+      case "assets":
+        return {
+          homePath: "/assets",
+          materialsPath: "/assets/materials",
+          productsPath: "/assets/products",
+          videosPath: "/assets/videos",
+        };
+      case "admin":
+        return {
+          homePath: "/admin",
+          materialsPath: "/admin/materials",
+          productsPath: "/admin/products",
+          videosPath: "/admin/videos",
+        };
+      default: // studio
+        return {
+          homePath: "/studio",
+          materialsPath: "/assets/materials",
+          productsPath: "/assets/products",
+          videosPath: "/assets/videos",
+        };
+    }
+  };
+
+  // 菜单配置 - 根据收起状态和菜单类型动态调整
   const getMenuItems = () => {
+    const config = getMenuConfig();
+
     if (sidebarCollapsed) {
       // 收起状态：扁平化菜单，不显示子菜单
       return [
         {
-          key: "/studio",
+          key: config.homePath,
           icon: <HomeOutlined />,
           label: "首页",
         },
@@ -44,17 +79,17 @@ const StudioSidebar: React.FC = () => {
           label: "精剪成片",
         },
         {
-          key: "/studio/materials",
+          key: config.materialsPath,
           icon: <FileImageOutlined />,
           label: "素材库",
         },
         {
-          key: "/studio/products",
+          key: config.productsPath,
           icon: <ShoppingOutlined />,
           label: "商品库",
         },
         {
-          key: "/studio/videos",
+          key: config.videosPath,
           icon: <PlayCircleOutlined />,
           label: "成片库",
         },
@@ -63,7 +98,7 @@ const StudioSidebar: React.FC = () => {
       // 展开状态：分层菜单结构
       return [
         {
-          key: "/studio",
+          key: config.homePath,
           icon: <HomeOutlined />,
           label: "首页",
         },
@@ -90,17 +125,17 @@ const StudioSidebar: React.FC = () => {
           label: "资产管理",
           children: [
             {
-              key: "/studio/materials",
+              key: config.materialsPath,
               icon: <FileImageOutlined />,
               label: "素材库",
             },
             {
-              key: "/studio/products",
+              key: config.productsPath,
               icon: <ShoppingOutlined />,
               label: "商品库",
             },
             {
-              key: "/studio/videos",
+              key: config.videosPath,
               icon: <PlayCircleOutlined />,
               label: "成片库",
             },

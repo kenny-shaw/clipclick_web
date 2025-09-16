@@ -22,12 +22,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* 为非studio页面添加顶部padding */
-body:not(:has([data-studio-layout])) {
-  padding-top: 64px;
-  overflow-y: auto;
+  overflow: hidden; /* 防止全局滚动，由布局组件管理 */
 }
 
 * {

@@ -2,7 +2,7 @@
 import { Form, message } from "antd";
 import { useFineCutStore } from "@/store/fineCutStore";
 import type { FineCutVideoItem } from "@/store/fineCutStore";
-import FullScreenLayout from "@/components/FullScreenLayout";
+// FullScreenLayout 现在由 AppLayout 自动处理
 import FineCutLeftPanel from "./components/FineCutLeftPanel";
 import FineCutRightPanel from "./components/FineCutRightPanel";
 import styles from "./index.module.scss";
@@ -88,16 +88,14 @@ const FineCutPage = () => {
   ];
 
   return (
-    <FullScreenLayout>
-      <div className={styles.fineCutContainer}>
-        <FineCutLeftPanel
-          form={form}
-          loading={isGenerating}
-          onGenerate={handleGenerate}
-        />
-        <FineCutRightPanel videos={allVideos} />
-      </div>
-    </FullScreenLayout>
+    <div className={styles.fineCutContainer}>
+      <FineCutLeftPanel
+        form={form}
+        loading={isGenerating}
+        onGenerate={handleGenerate}
+      />
+      <FineCutRightPanel videos={allVideos} />
+    </div>
   );
 };
 

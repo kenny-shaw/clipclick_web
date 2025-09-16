@@ -6,29 +6,34 @@ import AuthMenu from "../AuthMenu";
 import BackButton from "../BackButton";
 import styles from "./index.module.scss";
 
-// 移除素材管理，只保留创作中心
+export type LayoutVariant = "default" | "sidebar" | "fullscreen";
+
+interface HeaderBarProps {
+  variant?: LayoutVariant;
+  pageTitle?: string;
+}
+
+// 导航菜单
 const navs = [{ key: "studio", label: "创作中心", path: "/studio" }];
 
-// 全屏模式页面配置
-const fullScreenPages = {
-  "/template-video": "模板成片",
-  "/fine-cut": "精剪成片",
-};
-
-const HeaderBar: React.FC = () => {
+const HeaderBar: React.FC<HeaderBarProps> = ({
+  variant = "default",
+  pageTitle,
+}) => {
   const router = useRouter();
   const pathname = usePathname();
 
   // 判断是否为全屏模式
-  const isFullScreenMode = pathname in fullScreenPages;
+  const isFullScreenMode = variant === "fullscreen";
 
-  // 判断是否为创作中心相关页面
-  const isStudioPage = pathname.startsWith("/studio");
+  // 判断是否为创作中心相关页面（包括 assets 页面）
+  const isStudioPage =
+    pathname.startsWith("/studio") || pathname.startsWith("/assets");
 
   // 获取当前页面标题
   const getCurrentPageTitle = () => {
-    if (isFullScreenMode) {
-      return fullScreenPages[pathname as keyof typeof fullScreenPages];
+    if (isFullScreenMode && pageTitle) {
+      return pageTitle;
     }
     return null;
   };

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Form, message } from "antd";
 import { useVideoStore } from "@/store/videoStore";
 import type { VideoItem, CreateVideoParams } from "@/api";
-import FullScreenLayout from "@/components/FullScreenLayout";
+// FullScreenLayout 现在由 AppLayout 自动处理
 import LeftPanel from "./components/LeftPanel";
 import RightPanel from "./components/RightPanel";
 import styles from "./index.module.scss";
@@ -73,16 +73,10 @@ const TemplateVideoPage = () => {
   ];
 
   return (
-    <FullScreenLayout>
-      <div className={styles.templateVideoContainer}>
-        <LeftPanel
-          form={form}
-          loading={isCreating}
-          onGenerate={handleGenerate}
-        />
-        <RightPanel videos={allVideos} />
-      </div>
-    </FullScreenLayout>
+    <div className={styles.templateVideoContainer}>
+      <LeftPanel form={form} loading={isCreating} onGenerate={handleGenerate} />
+      <RightPanel videos={allVideos} />
+    </div>
   );
 };
 

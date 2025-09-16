@@ -1,0 +1,90 @@
+.assetsHome {
+  height: 100%;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.header {
+  margin-bottom: 24px;
+
+  .title {
+    margin-bottom: 8px;
+  }
+}
+
+.statsRow {
+  margin-bottom: 32px;
+}
+
+.quickActions {
+  margin-bottom: 32px;
+
+  .sectionTitle {
+    margin-bottom: 16px;
+  }
+}
+
+.actionCard {
+  height: 160px;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.actionIcon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.recentActivity {
+  .sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+
+  .emptyIcon {
+    font-size: 48px;
+    color: #d9d9d9;
+    margin-bottom: 16px;
+  }
+
+  .title {
+    margin-bottom: 8px;
+    color: #666;
+  }
+
+  .description {
+    margin-bottom: 24px;
+    color: #999;
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .statsRow {
+    .ant-col {
+      margin-bottom: 16px;
+    }
+  }
+
+  .actionCard {
+    height: 140px;
+  }
+
+  .actionIcon {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+}
