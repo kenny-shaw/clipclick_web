@@ -77,8 +77,10 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({ visible }) => {
         // 编辑模式：填充现有数据
         form.setFieldsValue({
           name: currentProduct.name,
-          // 注意：这里需要根据实际API返回的字段来设置
-          // 如果API返回的是文件夹ID，需要转换为文件夹名称
+          mainFolder: currentProduct.mainFolderId,
+          captionFolder: currentProduct.captionFolderId,
+          prefixFolder: currentProduct.prefixFolderId,
+          picFolder: currentProduct.picFolderId,
         });
       } else {
         // 创建模式：重置表单

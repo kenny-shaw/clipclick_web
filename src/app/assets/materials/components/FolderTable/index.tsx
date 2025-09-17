@@ -17,7 +17,7 @@ interface FolderTableProps {
   current: number;
   pageSize: number;
   total: number;
-  onFolderDoubleClick: (folder: FolderInfo) => void;
+  onFolderClick: (folder: FolderInfo) => void;
   onCreateFolder: () => void;
   onPageChange?: (pageNum: number, pageSize: number) => void;
 }
@@ -28,7 +28,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
   current,
   pageSize,
   total,
-  onFolderDoubleClick,
+  onFolderClick,
   onCreateFolder,
   onPageChange,
 }) => {
@@ -117,6 +117,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
       dataSource={folders}
       rowKey="id"
       loading={loading}
+      scroll={{ x: "max-content", y: 55 * 10 }}
       pagination={{
         current,
         pageSize,
@@ -129,7 +130,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
         onShowSizeChange: onPageChange,
       }}
       onRow={(record) => ({
-        onDoubleClick: () => onFolderDoubleClick(record),
+        onClick: () => onFolderClick(record),
         className: styles.tableRow,
       })}
       locale={{

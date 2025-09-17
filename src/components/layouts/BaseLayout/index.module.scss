@@ -15,6 +15,7 @@
   flex: 1;
   padding: 24px;
   background: #f5f5f5;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3e6f5 100%);
   height: calc(100vh - 64px);
   overflow: auto; // 允许内容滚动
   display: flex;

@@ -33,36 +33,12 @@
     overflow: hidden; // 防止卡片本身滚动
     min-height: 0; // 确保flex子元素可以收缩
 
-    // 重写 antd Card 的默认样式
-    :global(.ant-card-body) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 24px; // 保持一定的内边距
-      min-height: 0; // 确保flex子元素可以收缩
-    }
-
-    // 表格容器样式 - 使用更简单的方法
-    :global(.ant-table-wrapper) {
-      height: calc(100vh - 300px); // 固定高度
-      display: flex;
-      flex-direction: column;
-
-      :global(.ant-table) {
-        flex: 1;
-
-        :global(.ant-table-container) {
-          height: calc(100vh - 380px); // 为分页器留出空间
-          overflow-y: auto;
-        }
-      }
-
-      // 确保分页器显示
-      :global(.ant-pagination) {
-        flex-shrink: 0;
-        margin-top: 16px;
-        text-align: right;
+    :global(.ant-table-container) {
+      .ant-table-body,
+      .ant-table-content {
+        scrollbar-width: thin;
+        scrollbar-color: #eaeaea transparent;
+        scrollbar-gutter: stable;
       }
     }
   }

@@ -102,19 +102,19 @@ const MaterialsPage = () => {
   const handleBreadcrumbClick = (id: number) => {
     if (id === 0) {
       // 点击根目录
-      router.push("/studio/materials");
+      router.push("/assets/materials");
     } else {
       // 点击其他文件夹
-      router.push(`/studio/materials?folderId=${id}`);
+      router.push(`/assets/materials?folderId=${id}`);
     }
   };
 
-  // 文件夹双击处理
-  const handleFolderDoubleClick = (folder: FolderInfo) => {
+  // 文件夹单击处理
+  const handleFolderClick = (folder: FolderInfo) => {
     // 更新面包屑导航
     setCurrentFolder(folder.id);
     // 跳转到文件夹页面
-    router.push(`/studio/materials?folderId=${folder.id}`);
+    router.push(`/assets/materials?folderId=${folder.id}`);
   };
 
   // 创建文件夹相关处理
@@ -204,13 +204,6 @@ const MaterialsPage = () => {
 
   return (
     <div className={styles.materialsPage}>
-      {/* 面包屑导航 */}
-      <MaterialBreadcrumb
-        currentFolderId={currentFolderId}
-        onBreadcrumbClick={handleBreadcrumbClick}
-        getBreadcrumbsForFolder={getBreadcrumbsForFolder}
-      />
-
       {/* 页面头部 */}
       <div className={styles.header}>
         <div className={styles.headerInfo}>
@@ -294,6 +287,13 @@ const MaterialsPage = () => {
         </Space>
       </div>
 
+      {/* 面包屑导航 */}
+      <MaterialBreadcrumb
+        currentFolderId={currentFolderId}
+        onBreadcrumbClick={handleBreadcrumbClick}
+        getBreadcrumbsForFolder={getBreadcrumbsForFolder}
+      />
+
       {/* 内容区域 */}
       <Card className={styles.contentCard}>
         {isRoot ? (
@@ -303,7 +303,7 @@ const MaterialsPage = () => {
             current={foldersCurrent}
             pageSize={foldersPageSize}
             total={foldersTotal}
-            onFolderDoubleClick={handleFolderDoubleClick}
+            onFolderClick={handleFolderClick}
             onCreateFolder={handleCreateFolder}
             onPageChange={handleFolderPageChange}
           />

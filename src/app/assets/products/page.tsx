@@ -93,7 +93,7 @@ const ProductsPage = () => {
 
   // 跳转到文件夹
   const handleFolderClick = (folderId: number) => {
-    router.push(`/studio/materials?folderId=${folderId}`);
+    router.push(`/assets/materials?folderId=${folderId}`);
   };
 
   // 分页处理
@@ -198,6 +198,7 @@ const ProductsPage = () => {
       title: "操作",
       key: "action",
       width: 150,
+      fixed: "right" as const,
       render: (_: unknown, record: Product) => (
         <Space>
           <Button
@@ -245,6 +246,15 @@ const ProductsPage = () => {
         </div>
 
         <Space>
+          <Search
+            placeholder="搜索商品名称..."
+            value={searchValue}
+            onChange={handleSearchChange}
+            onSearch={handleSearch}
+            enterButton={<SearchOutlined />}
+            style={{ width: 300 }}
+            allowClear
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -255,21 +265,6 @@ const ProductsPage = () => {
         </Space>
       </div>
 
-      {/* 搜索区域 */}
-      <Card className={styles.searchCard}>
-        <div className={styles.searchContainer}>
-          <Search
-            placeholder="搜索商品名称..."
-            value={searchValue}
-            onChange={handleSearchChange}
-            onSearch={handleSearch}
-            enterButton={<SearchOutlined />}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </div>
-      </Card>
-
       {/* 商品列表 */}
       <Card className={styles.contentCard}>
         <Table
@@ -277,6 +272,7 @@ const ProductsPage = () => {
           dataSource={products}
           loading={productsLoading}
           rowKey="id"
+          scroll={{ x: "max-content", y: 55 * 10 }}
           pagination={{
             current: productsCurrent,
             pageSize: productsPageSize,
@@ -288,7 +284,6 @@ const ProductsPage = () => {
             onChange: handlePageChange,
             onShowSizeChange: handlePageChange,
           }}
-          scroll={{ x: 1200 }}
         />
       </Card>
 

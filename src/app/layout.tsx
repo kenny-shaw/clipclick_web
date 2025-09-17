@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
 import AuthProvider from "@/components/AuthProvider";
 import ClientAppLayout from "@/components/layouts/ClientAppLayout";
 import "@ant-design/v5-patch-for-react-19";
@@ -32,9 +34,11 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AntdRegistry>
-          <AuthProvider>
-            <ClientAppLayout>{children}</ClientAppLayout>
-          </AuthProvider>
+          <ConfigProvider locale={zhCN}>
+            <AuthProvider>
+              <ClientAppLayout>{children}</ClientAppLayout>
+            </AuthProvider>
+          </ConfigProvider>
         </AntdRegistry>
       </body>
     </html>

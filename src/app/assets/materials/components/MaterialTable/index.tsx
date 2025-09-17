@@ -192,6 +192,7 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
       dataSource={materials}
       rowKey="id"
       loading={loading}
+      scroll={{ x: "max-content", y: 55 * 10 }}
       pagination={{
         current,
         pageSize,

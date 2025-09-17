@@ -157,13 +157,16 @@ const StudioSidebar: React.FC<StudioSidebarProps> = ({
     return [pathname];
   };
 
-  // 初始化展开状态
+  // 初始化展开状态 - 只在首次加载时设置默认值
+  const isInitialized = React.useRef(false);
+
   React.useEffect(() => {
-    if (openKeys.length === 0) {
+    if (!isInitialized.current && openKeys.length === 0) {
       // 首次加载时设置默认展开状态
       setOpenKeys(["video", "assets"]);
+      isInitialized.current = true;
     }
-  }, [openKeys.length, setOpenKeys]);
+  }, [setOpenKeys]);
 
   // 处理子菜单展开/收起
   const handleOpenChange = (keys: string[]) => {
