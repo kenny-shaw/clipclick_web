@@ -85,7 +85,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
       title: "创建时间",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 160,
+      width: 200,
       render: (createdAt: string) => (
         <Tooltip title={createdAt}>
           <div className={styles.timeInfo}>

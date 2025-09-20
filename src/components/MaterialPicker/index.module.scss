@@ -1,0 +1,215 @@
+.materialPicker {
+  width: 100%;
+}
+
+.displayArea {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fafafa;
+  min-height: 120px;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  color: #8c8c8c;
+}
+
+.selectedMaterials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.selectedItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 200px; // 设置最小宽度
+  max-width: 100%; // 最大宽度不超过容器
+
+  &:hover {
+    border-color: #40a9ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.materialInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.materialName {
+  font-size: 12px;
+  color: #262626;
+  max-width: none; // 移除最大宽度限制
+  flex: 1;
+}
+
+.removeBtn {
+  padding: 4px;
+  min-width: auto;
+  height: auto;
+}
+
+.addButton {
+  margin-top: 0;
+}
+
+// 选择器样式
+.selectorModal {
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.selectorContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 500px; // 设置固定高度
+  min-height: 400px; // 最小高度
+}
+
+.searchBar {
+  margin-bottom: 16px;
+}
+
+.materialList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+}
+
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px; // 为滚动条留出空间
+  min-height: 0; // 确保可以收缩
+}
+
+.selectorItem {
+  position: relative;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #40a9ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &.selected {
+    border-color: #1890ff;
+    background: #f0f8ff;
+  }
+}
+
+.selectedOverlay {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.checkIcon {
+  color: white;
+  font-size: 12px;
+}
+
+.selectorItemInfo {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.selectorItemName {
+  font-size: 12px;
+  color: #262626;
+  max-width: 100%;
+}
+
+.paginationContainer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end; // 右对齐
+  flex-shrink: 0; // 防止被压缩
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .selectorContent {
+    height: 400px;
+    min-height: 300px;
+  }
+
+  .materialGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+
+  .selectedMaterials {
+    gap: 8px;
+  }
+
+  .selectedItem {
+    padding: 6px;
+    min-width: 150px; // 移动端减小最小宽度
+  }
+
+  .materialName {
+    font-size: 11px; // 移动端稍微减小字体
+  }
+
+  .paginationContainer {
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .selectedItem {
+    min-width: 120px; // 更小屏幕进一步减小最小宽度
+    padding: 4px;
+  }
+
+  .materialName {
+    font-size: 10px;
+  }
+
+  .selectedMaterials {
+    gap: 6px;
+  }
+}

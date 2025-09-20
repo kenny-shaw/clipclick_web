@@ -16,7 +16,6 @@ import MaterialBreadcrumb from "./components/MaterialBreadcrumb";
 import FolderTable from "./components/FolderTable";
 import MaterialTable from "./components/MaterialTable";
 import CreateFolderModal from "./components/CreateFolderModal";
-import MaterialPreviewModal from "./components/MaterialPreviewModal";
 import UploadFilesDrawer from "./components/upload/UploadFilesDrawer";
 import UploadFolderDrawer from "./components/upload/UploadFolderDrawer";
 import BackgroundTasksSidebar from "./components/BackgroundTasksSidebar";
@@ -60,12 +59,6 @@ const MaterialsPage = () => {
 
   // 创建文件夹弹窗状态
   const [createFolderVisible, setCreateFolderVisible] = useState(false);
-
-  // 素材预览弹窗状态
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewMaterial, setPreviewMaterial] = useState<MaterialInfo | null>(
-    null
-  );
 
   // 上传抽屉状态
   const [uploadFilesVisible, setUploadFilesVisible] = useState(false);
@@ -150,16 +143,10 @@ const MaterialsPage = () => {
     setUploadFolderVisible(true);
   };
 
-  // 素材点击处理（用于预览）
+  // 素材点击处理
   const handleMaterialClick = (material: MaterialInfo) => {
-    setPreviewMaterial(material);
-    setPreviewVisible(true);
-  };
-
-  // 关闭预览弹窗
-  const handlePreviewClose = () => {
-    setPreviewVisible(false);
-    setPreviewMaterial(null);
+    // 可以在这里添加其他处理逻辑，比如跳转到详情页
+    console.log("Material clicked:", material);
   };
 
   // 上传抽屉处理
@@ -327,13 +314,6 @@ const MaterialsPage = () => {
         loading={isCreatingFolder}
         onSubmit={handleCreateFolderSubmit}
         onCancel={handleCreateFolderCancel}
-      />
-
-      {/* 素材预览弹窗 */}
-      <MaterialPreviewModal
-        visible={previewVisible}
-        material={previewMaterial}
-        onClose={handlePreviewClose}
       />
 
       {/* 上传文件抽屉 */}

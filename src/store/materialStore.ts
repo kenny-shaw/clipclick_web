@@ -20,7 +20,7 @@ import { ConcurrencyLimiter } from '@/utils/concurrencyLimiter';
 import { useAuthStore } from './authStore';
 
 // 全局并发限制器实例
-const globalUploadLimiter = new ConcurrencyLimiter(1);
+const globalUploadLimiter = new ConcurrencyLimiter(5);
 
 // 面包屑导航项
 export interface BreadcrumbItem {

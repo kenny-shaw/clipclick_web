@@ -1,0 +1,59 @@
+.previewModal {
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fileType {
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.previewContainer {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.materialInfo {
+  padding: 16px;
+  background: #f5f5f5;
+  border-top: 1px solid #d9d9d9;
+}
+
+.infoItem {
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.fileUrl {
+  word-break: break-all;
+  font-size: 12px;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .previewModal {
+    .ant-modal {
+      margin: 16px;
+      max-width: calc(100vw - 32px);
+    }
+  }
+
+  .materialInfo {
+    padding: 12px;
+  }
+}

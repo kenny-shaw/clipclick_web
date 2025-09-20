@@ -1,0 +1,57 @@
+.videoPreviewContainer {
+  position: relative;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.loadingContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  gap: 16px;
+}
+
+.errorContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}
+
+.playerContainer {
+  width: 100%;
+  background: #000;
+  position: relative;
+  min-height: 400px; // 设置最小高度确保播放器有足够空间
+
+  // 音频容器
+  &.audioContainer {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .playerContainer {
+    min-height: 250px;
+  }
+}

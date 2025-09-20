@@ -20,12 +20,14 @@
     "@volcengine/tos-sdk": "^2.7.5",
     "ahooks": "^3.9.5",
     "antd": "^5.26.2",
+    "core-js": "^3.45.1",
     "next": "15.3.4",
     "rc-menu": "^9.16.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "sass": "^1.89.2",
     "sharp": "^0.34.2",
+    "xgplayer": "^3.0.23",
     "zustand": "^5.0.6"
   },
   "devDependencies": {

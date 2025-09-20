@@ -3,7 +3,7 @@ import React from "react";
 import { Form, Button, Typography, FormInstance } from "antd";
 import { useFineCutStore } from "@/store/fineCutStore";
 import ProductSelector from "../ProductSelector";
-import MaterialDisplay from "../MaterialDisplay";
+import MaterialPicker from "@/components/MaterialPicker";
 import { Product } from "@/api/services/product/types";
 import { MaterialInfo } from "@/api";
 import styles from "./index.module.scss";
@@ -22,11 +22,8 @@ const FineCutLeftPanel: React.FC<FineCutLeftPanelProps> = ({
   onGenerate,
 }) => {
   const {
+    selectedProduct,
     setSelectedProduct,
-    mainVideos,
-    prefixVideos,
-    maskImages,
-    materialsLoading,
     selectedMainVideos,
     selectedPrefixVideos,
     selectedMaskImages,
@@ -44,17 +41,17 @@ const FineCutLeftPanel: React.FC<FineCutLeftPanelProps> = ({
   // 处理主视频选择
   const handleMainVideoChange = (materials: MaterialInfo[]) => {
     setSelectedMainVideos(materials);
-    form.setFieldsValue({ mainVideoIds: materials.map((m) => m.id) });
+    form.setFieldsValue({ mainVideos: materials });
   };
 
   // 处理前贴视频选择
   const handlePrefixVideoChange = (materials: MaterialInfo[]) => {
     if (materials.length > 0) {
       setSelectedPrefixVideos([materials[0]]);
-      form.setFieldsValue({ prefixVideoId: materials[0].id });
+      form.setFieldsValue({ prefixVideo: materials[0] });
     } else {
       setSelectedPrefixVideos([]);
-      form.setFieldsValue({ prefixVideoId: undefined });
+      form.setFieldsValue({ prefixVideo: undefined });
     }
   };
 
@@ -62,10 +59,10 @@ const FineCutLeftPanel: React.FC<FineCutLeftPanelProps> = ({
   const handleMaskImageChange = (materials: MaterialInfo[]) => {
     if (materials.length > 0) {
       setSelectedMaskImages([materials[0]]);
-      form.setFieldsValue({ maskImageId: materials[0].id });
+      form.setFieldsValue({ maskImage: materials[0] });
     } else {
       setSelectedMaskImages([]);
-      form.setFieldsValue({ maskImageId: undefined });
+      form.setFieldsValue({ maskImage: undefined });
     }
   };
 
@@ -94,46 +91,43 @@ const FineCutLeftPanel: React.FC<FineCutLeftPanelProps> = ({
             </Form.Item>
             <Form.Item
               label="主视频"
-              name="mainVideoIds"
+              name="mainVideos"
               rules={[{ required: true, message: "请选择主视频" }]}
             >
-              <MaterialDisplay
-                materials={selectedMainVideos}
-                onMaterialsChange={handleMainVideoChange}
+              <MaterialPicker
+                value={selectedMainVideos}
+                onChange={handleMainVideoChange}
                 placeholder="请选择主视频"
                 multiple={true}
-                materialType="video"
                 required={true}
-                loading={materialsLoading}
-                availableMaterials={mainVideos}
+                folderId={selectedProduct?.mainFolderId || 0}
+                selectorTitle="选择主视频"
               />
             </Form.Item>
-            <Form.Item label="前贴视频" name="prefixVideoId">
-              <MaterialDisplay
-                materials={selectedPrefixVideos}
-                onMaterialsChange={handlePrefixVideoChange}
+            <Form.Item label="前贴视频" name="prefixVideo">
+              <MaterialPicker
+                value={selectedPrefixVideos}
+                onChange={handlePrefixVideoChange}
                 placeholder="请选择前贴视频（可选）"
                 multiple={false}
-                materialType="video"
                 required={false}
-                loading={materialsLoading}
-                availableMaterials={prefixVideos}
+                folderId={selectedProduct?.prefixFolderId || 0}
+                selectorTitle="选择前贴视频"
               />
             </Form.Item>
             <Form.Item
               label="蒙层图片"
-              name="maskImageId"
+              name="maskImage"
               rules={[{ required: true, message: "请选择蒙层图片" }]}
             >
-              <MaterialDisplay
-                materials={selectedMaskImages}
-                onMaterialsChange={handleMaskImageChange}
+              <MaterialPicker
+                value={selectedMaskImages}
+                onChange={handleMaskImageChange}
                 placeholder="请选择蒙层图片"
                 multiple={false}
-                materialType="image"
                 required={true}
-                loading={materialsLoading}
-                availableMaterials={maskImages}
+                folderId={selectedProduct?.picFolderId || 0}
+                selectorTitle="选择蒙层图片"
               />
             </Form.Item>
           </div>

@@ -3,7 +3,6 @@ import { devtools } from 'zustand/middleware';
 import { Product } from '@/api/services/product/types';
 import { MaterialInfo } from '@/api';
 import { getProductList } from '@/api/services/product';
-import { getMaterialList } from '@/api/services/material';
 import { message } from 'antd';
 
 // 精剪成片参数接口
@@ -12,6 +11,15 @@ export interface CreateFineCutVideoParams {
     mainVideoIds: number[];
     prefixVideoIds?: number[];
     maskImageIds: number[];
+    title?: string;
+}
+
+// 表单数据接口
+export interface FineCutFormData {
+    productId: number;
+    mainVideos: MaterialInfo[];
+    prefixVideo?: MaterialInfo;
+    maskImage?: MaterialInfo;
     title?: string;
 }
 
@@ -51,11 +59,7 @@ interface FineCutState {
     searchKeyword: string;
     selectedProduct: Product | null;
 
-    // 素材相关
-    mainVideos: MaterialInfo[];
-    prefixVideos: MaterialInfo[];
-    maskImages: MaterialInfo[];
-    materialsLoading: boolean;
+    // 素材相关 - 已移除，现在由 MaterialPicker 组件直接管理
 
     // 选择状态
     selectedMainVideos: MaterialInfo[];
@@ -73,9 +77,6 @@ interface FineCutState {
     setSelectedProduct: (product: Product | null) => void;
 
     // 素材操作
-    fetchMainVideos: (folderId: number) => Promise<void>;
-    fetchPrefixVideos: (folderId: number) => Promise<void>;
-    fetchMaskImages: (folderId: number) => Promise<void>;
     setSelectedMainVideos: (videos: MaterialInfo[]) => void;
     setSelectedPrefixVideos: (videos: MaterialInfo[]) => void;
     setSelectedMaskImages: (images: MaterialInfo[]) => void;
@@ -99,10 +100,6 @@ const initialState = {
     searchKeyword: '',
     selectedProduct: null,
 
-    mainVideos: [],
-    prefixVideos: [],
-    maskImages: [],
-    materialsLoading: false,
 
     selectedMainVideos: [],
     selectedPrefixVideos: [],
@@ -159,104 +156,8 @@ export const useFineCutStore = create<FineCutState>()(
 
                 // 清空之前的选择
                 get().resetSelections();
-
-                // 如果选择了商品，加载对应的素材
-                if (product) {
-                    if (product.mainFolderId) {
-                        get().fetchMainVideos(product.mainFolderId);
-                    }
-                    if (product.prefixFolderId) {
-                        get().fetchPrefixVideos(product.prefixFolderId);
-                    }
-                    if (product.picFolderId) {
-                        get().fetchMaskImages(product.picFolderId);
-                    }
-                }
             },
 
-            // 获取主视频列表
-            fetchMainVideos: async (folderId: number) => {
-                set({ materialsLoading: true });
-                try {
-                    const response = await getMaterialList({
-                        folderId: folderId,
-                        pageNum: 1,
-                        pageSize: 100, // 获取所有视频
-                    });
-
-                    if (response.code === 200 && response.rows) {
-                        // 过滤出视频类型的素材
-                        const videos = response.rows.filter(material => material.category === 2);
-                        set({
-                            mainVideos: videos,
-                            materialsLoading: false,
-                        });
-                    } else {
-                        throw new Error(response.msg || '获取主视频列表失败');
-                    }
-                } catch (error) {
-                    console.error('获取主视频列表失败:', error);
-                    set({ materialsLoading: false });
-                    message.error('获取主视频列表失败');
-                    throw error;
-                }
-            },
-
-            // 获取前贴视频列表
-            fetchPrefixVideos: async (folderId: number) => {
-                set({ materialsLoading: true });
-                try {
-                    const response = await getMaterialList({
-                        folderId: folderId,
-                        pageNum: 1,
-                        pageSize: 100, // 获取所有视频
-                    });
-
-                    if (response.code === 200 && response.rows) {
-                        // 过滤出视频类型的素材
-                        const videos = response.rows.filter(material => material.category === 2);
-                        set({
-                            prefixVideos: videos,
-                            materialsLoading: false,
-                        });
-                    } else {
-                        throw new Error(response.msg || '获取前贴视频列表失败');
-                    }
-                } catch (error) {
-                    console.error('获取前贴视频列表失败:', error);
-                    set({ materialsLoading: false });
-                    message.error('获取前贴视频列表失败');
-                    throw error;
-                }
-            },
-
-            // 获取蒙层图片列表
-            fetchMaskImages: async (folderId: number) => {
-                set({ materialsLoading: true });
-                try {
-                    const response = await getMaterialList({
-                        folderId: folderId,
-                        pageNum: 1,
-                        pageSize: 100, // 获取所有图片
-                    });
-
-                    if (response.code === 200 && response.rows) {
-                        // 过滤出图片类型的素材
-                        const images = response.rows.filter(material => material.category === 1);
-                        set({
-                            maskImages: images,
-                            materialsLoading: false,
-                        });
-                    } else {
-                        throw new Error(response.msg || '获取蒙层图片列表失败');
-                    }
-                } catch (error) {
-                    console.error('获取蒙层图片列表失败:', error);
-                    set({ materialsLoading: false });
-                    message.error('获取蒙层图片列表失败');
-                    throw error;
-                }
-            },
 
             // 设置选中的主视频
             setSelectedMainVideos: (videos: MaterialInfo[]) => {
@@ -367,9 +268,6 @@ export const useFineCutStore = create<FineCutState>()(
                     selectedMainVideos: [],
                     selectedPrefixVideos: [],
                     selectedMaskImages: [],
-                    mainVideos: [],
-                    prefixVideos: [],
-                    maskImages: [],
                 });
             },
         }),

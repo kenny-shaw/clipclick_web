@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import TOS from '@volcengine/tos-sdk';
 import { AuthService } from '@/api';
 import { useAuthStore } from '@/store/authStore';

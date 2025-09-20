@@ -1,0 +1,136 @@
+.uploadArea {
+  position: relative;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(.disabled) {
+    border-color: #1890ff;
+    background: #f0f8ff;
+  }
+
+  &.dragOver {
+    border-color: #1890ff;
+    background: #e6f7ff;
+    border-style: solid;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .uploadContent {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .hintArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    .hintIcon {
+      font-size: 32px;
+      color: #1890ff;
+      margin-bottom: 12px;
+    }
+
+    .hintText {
+      font-size: 16px;
+      color: #1890ff;
+      font-weight: 500;
+    }
+  }
+
+  .dragOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(24, 144, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+
+    .dragContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .dragIcon {
+        font-size: 48px;
+        color: #1890ff;
+        margin-bottom: 16px;
+        animation: bounce 0.6s ease-in-out infinite alternate;
+      }
+
+      .dragText {
+        font-size: 16px;
+        color: #1890ff;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// 弹跳动画
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .uploadArea {
+    min-height: 150px;
+
+    .uploadContent {
+      padding: 15px;
+    }
+
+    .hintArea {
+      .hintIcon {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .hintText {
+        font-size: 14px;
+      }
+    }
+
+    .dragOverlay {
+      .dragContent {
+        .dragIcon {
+          font-size: 36px;
+          margin-bottom: 12px;
+        }
+
+        .dragText {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}

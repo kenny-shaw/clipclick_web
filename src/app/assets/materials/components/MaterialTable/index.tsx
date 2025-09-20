@@ -1,22 +1,23 @@
-import React from "react";
-import { Table, Tag, Button, Tooltip } from "antd";
+import React, { useState } from "react";
+import { Table, Tag, Button, Tooltip, Typography } from "antd";
 import {
   PlusOutlined,
   UserOutlined,
   CalendarOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  FileImageOutlined,
-  VideoCameraOutlined,
-  AudioOutlined,
-  FileOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
   CloudUploadOutlined,
 } from "@ant-design/icons";
 import { MaterialInfo } from "@/api";
+import MaterialThumbnail from "@/components/MaterialThumbnail";
+import MaterialPreview from "@/components/MaterialPreview";
+import {
+  getMaterialTypeLabel,
+  getApprovalStatus,
+  getVisibilityStatus,
+  formatTime,
+} from "@/utils/materialUtils";
 import styles from "./index.module.scss";
+
+const { Text } = Typography;
 
 interface MaterialTableProps {
   materials: MaterialInfo[];
@@ -39,66 +40,23 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
   onMaterialClick,
   onPageChange,
 }) => {
-  // 格式化时间
-  const formatTime = (timeString: string) => {
-    return new Date(timeString).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  // 预览状态管理
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewMaterial, setPreviewMaterial] = useState<MaterialInfo | null>(
+    null
+  );
 
-  // 获取素材类型图标
-  const getMaterialIcon = (url: string, category: number) => {
-    console.log(category);
-    const extension = url.split(".").pop()?.toLowerCase();
-
-    // 根据文件扩展名判断类型
-    if (
-      ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(extension || "")
-    ) {
-      return <FileImageOutlined style={{ color: "#52c41a" }} />;
-    } else if (
-      ["mp4", "avi", "mov", "wmv", "flv", "webm"].includes(extension || "")
-    ) {
-      return <VideoCameraOutlined style={{ color: "#1890ff" }} />;
-    } else if (["mp3", "wav", "aac", "ogg", "flac"].includes(extension || "")) {
-      return <AudioOutlined style={{ color: "#faad14" }} />;
-    } else {
-      return <FileOutlined style={{ color: "#8c8c8c" }} />;
+  // 处理预览
+  const handlePreview = (material?: MaterialInfo, _file?: File) => {
+    if (material) {
+      setPreviewMaterial(material);
+      setPreviewVisible(true);
     }
   };
 
-  // 获取审核状态
-  const getApprovalStatus = (isApproved: number) => {
-    switch (isApproved) {
-      case 1:
-        return (
-          <Tag color="success" icon={<CheckCircleOutlined />}>
-            已审核
-          </Tag>
-        );
-      case 0:
-        return (
-          <Tag color="warning" icon={<ClockCircleOutlined />}>
-            待审核
-          </Tag>
-        );
-      case -1:
-        return (
-          <Tag color="error" icon={<CloseCircleOutlined />}>
-            审核失败
-          </Tag>
-        );
-      default:
-        return (
-          <Tag color="default" icon={<ClockCircleOutlined />}>
-            未知
-          </Tag>
-        );
-    }
+  // 处理行点击
+  const handleRowClick = (record: MaterialInfo) => {
+    onMaterialClick?.(record);
   };
 
   const columns = [
@@ -106,10 +64,23 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
       title: "素材名称",
       dataIndex: "name",
       key: "name",
+      width: 300,
       render: (text: string, record: MaterialInfo) => (
         <div className={styles.materialName}>
-          {getMaterialIcon(record.url, record.category)}
-          <span>{text}</span>
+          <MaterialThumbnail
+            material={record}
+            size="small"
+            onClick={handlePreview}
+            className={styles.materialThumbnail}
+          />
+          <div className={styles.materialInfo}>
+            <Text className={styles.materialTitle} ellipsis={{ tooltip: text }}>
+              {text}
+            </Text>
+            <Text type="secondary" className={styles.materialId}>
+              ID: {record.id}
+            </Text>
+          </div>
         </div>
       ),
     },
@@ -119,8 +90,7 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
       key: "type",
       width: 100,
       render: (url: string) => {
-        const extension = url.split(".").pop()?.toLowerCase() || "";
-        return <Tag>{extension.toUpperCase()}</Tag>;
+        return <Tag>{getMaterialTypeLabel(url)}</Tag>;
       },
     },
     {
@@ -135,14 +105,7 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
       dataIndex: "isPublic",
       key: "isPublic",
       width: 100,
-      render: (isPublic: number) => (
-        <Tag
-          color={isPublic === 1 ? "green" : "orange"}
-          icon={isPublic === 1 ? <EyeOutlined /> : <EyeInvisibleOutlined />}
-        >
-          {isPublic === 1 ? "公开" : "私有"}
-        </Tag>
-      ),
+      render: (isPublic: number) => getVisibilityStatus(isPublic),
     },
     {
       title: "所有者",
@@ -160,7 +123,7 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
       title: "创建时间",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 160,
+      width: 200,
       render: (createdAt: string) => (
         <Tooltip title={createdAt}>
           <div className={styles.timeInfo}>
@@ -187,31 +150,40 @@ const MaterialTable: React.FC<MaterialTableProps> = ({
   }
 
   return (
-    <Table
-      columns={columns}
-      dataSource={materials}
-      rowKey="id"
-      loading={loading}
-      scroll={{ x: "max-content", y: 55 * 10 }}
-      pagination={{
-        current,
-        pageSize,
-        total,
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total, range) =>
-          `第 ${range[0]}-${range[1]} 项，共 ${total} 个素材`,
-        onChange: onPageChange,
-        onShowSizeChange: onPageChange,
-      }}
-      onRow={(record) => ({
-        onClick: () => onMaterialClick?.(record),
-        className: styles.tableRow,
-      })}
-      locale={{
-        emptyText: emptyState,
-      }}
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={materials}
+        rowKey="id"
+        loading={loading}
+        scroll={{ x: "max-content", y: 55 * 10 }}
+        pagination={{
+          current,
+          pageSize,
+          total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) =>
+            `第 ${range[0]}-${range[1]} 项，共 ${total} 个素材`,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+        }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          className: styles.tableRow,
+        })}
+        locale={{
+          emptyText: emptyState,
+        }}
+      />
+
+      {/* 预览组件 */}
+      <MaterialPreview
+        visible={previewVisible}
+        material={previewMaterial}
+        onClose={() => setPreviewVisible(false)}
+      />
+    </>
   );
 };
 

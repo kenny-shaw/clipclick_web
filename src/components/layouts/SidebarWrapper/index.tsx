@@ -12,9 +12,10 @@ interface SidebarWrapperProps {
 const SidebarWrapper: React.FC<SidebarWrapperProps> = ({ type }) => {
   // 目前所有类型都使用同一个 StudioSidebar
   // 未来可以扩展不同的侧边栏
+  console.log("Sidebar type:", type);
   return (
     <div className={styles.sidebarWrapper}>
-      <StudioSidebar menuType={type} />
+      <StudioSidebar />
     </div>
   );
 };

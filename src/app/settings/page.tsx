@@ -18,7 +18,6 @@ const { Title } = Typography;
 const SettingsPage = () => {
   const [form] = Form.useForm();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = (values: any) => {
     console.log("设置保存:111", values);
     message.success("设置已保存");

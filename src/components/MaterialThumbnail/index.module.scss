@@ -1,0 +1,125 @@
+.materialThumbnail {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// 图标基础样式（尺寸通过内联样式设置）
+.playIcon,
+.audioIcon,
+.fileIcon {
+  transition: all 0.2s ease;
+}
+
+// 图片缩略图
+.imageThumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  // File对象的图片缩略图（图标+背景色）
+  &.fileImageThumbnail {
+    background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: unset;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// 视频缩略图
+.videoThumbnail {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+.playIcon {
+  color: white;
+  z-index: 1;
+}
+
+.materialThumbnail:hover .playIcon {
+  transform: scale(1.1);
+}
+
+// 音频缩略图
+.audioThumbnail {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.audioIcon {
+  color: white;
+}
+
+.materialThumbnail:hover .audioIcon {
+  transform: scale(1.1);
+}
+
+// 文件缩略图
+.fileThumbnail {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #8c8c8c 0%, #595959 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.fileIcon {
+  color: white;
+}
+
+.materialThumbnail:hover .fileIcon {
+  transform: scale(1.1);
+}
