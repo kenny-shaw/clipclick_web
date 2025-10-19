@@ -92,11 +92,6 @@ const StudioSidebar: React.FC = () => {
               icon: <ScissorOutlined />,
               label: "精剪成片",
             },
-            {
-              key: menuConfig.videosPath,
-              icon: <PlayCircleOutlined />,
-              label: "成片库",
-            },
           ],
         },
         {
@@ -113,6 +108,11 @@ const StudioSidebar: React.FC = () => {
               key: menuConfig.productsPath,
               icon: <ShoppingOutlined />,
               label: "商品库",
+            },
+            {
+              key: menuConfig.videosPath,
+              icon: <PlayCircleOutlined />,
+              label: "成片库",
             },
           ],
         },

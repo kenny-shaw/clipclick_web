@@ -1,0 +1,29 @@
+{
+  "gitee": {
+    "owner": "toastqueen",
+    "repo": "clipclick_core",
+    "branch": "feat/idl",
+    "token": "05ec0079b0b4a0755f6919e6ac57cc06"
+  },
+  "idl": {
+    "files": [],  
+    "scanDir": "idl/http",
+    "tempDir": "src/api-v2/idl",
+    "outputDir": "src/api-v2/generated"
+  },
+  "generation": {
+    "target": "thrift-server",
+    "timeout": 30000,
+    "fallbackNamespace": "java"
+  },
+  "api": {
+    "baseUrl": "http://47.93.53.0:8080",
+    "timeout": 10000,
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  },
+  "clients": {
+    "outputDir": "src/api-v2/clients"
+  }
+}
