@@ -8,7 +8,6 @@ class CodeGenerator {
     this.tempDir = config.idl.tempDir;
     this.generationConfig = config.generation;
     this.clientsConfig = config.clients;
-    this.apiConfig = config.api;
   }
 
   /**
@@ -90,13 +89,10 @@ class CodeGenerator {
 
       console.log(`📋 发现 ${servicesMap.size} 个服务:`, Array.from(servicesMap.keys()));
 
+      console.log('servicesMap', servicesMap.values())
       // 为每个发现的服务生成客户端
       for (const [serviceName, endpoints] of servicesMap) {
-        const service = {
-          name: serviceName,
-          baseUrl: this.apiConfig.baseUrl
-        };
-        await this.generateServiceClient(service, endpoints);
+        await this.generateServiceClient(serviceName, endpoints);
       }
 
       // 生成统一的客户端导出文件
@@ -113,8 +109,8 @@ class CodeGenerator {
   /**
    * 生成单个服务的客户端
    */
-  async generateServiceClient(service, endpoints) {
-    const clientPath = path.join(this.clientsConfig.outputDir, `${service.name}Client.ts`);
+  async generateServiceClient(serviceName, endpoints) {
+    const clientPath = path.join(this.clientsConfig.outputDir, `${serviceName}Client.ts`);
 
     // 生成方法实现
     const methods = endpoints.map(endpoint => {
@@ -122,6 +118,7 @@ class CodeGenerator {
       const httpMethod = endpoint.httpMethod;
       const endpointPath = endpoint.endpoint;
       const returnType = endpoint.returnType;
+      const requestType = endpoint.requestType;
 
       // 处理路径参数
       const hasPathParams = endpointPath.includes('{');
@@ -133,7 +130,7 @@ class CodeGenerator {
         const pathParams = endpointPath.match(/\{(\w+)\}/g) || [];
         pathProcessing = pathParams.map(param => {
           const paramName = param.slice(1, -1); // 去掉大括号
-          return `    const path = '${endpointPath}'.replace('{${paramName}}', req.${paramName} || '');`;
+          return `    const path = '${endpointPath}'.replace('{${paramName}}', String(req.${paramName} || ''));`;
         }).join('\n');
         processedEndpointPath = 'path';
       }
@@ -143,19 +140,19 @@ class CodeGenerator {
       const endpointStr = hasPathParams ? processedEndpointPath : `'${endpointPath}'`;
 
       if (httpMethod === 'GET') {
-        requestMethod = `this.requestInstance.get<${returnType}>(${endpointStr}, req)`;
+        requestMethod = `this.requestInstance.get<I${returnType}Args>(${endpointStr}, req)`;
       } else if (httpMethod === 'POST') {
-        requestMethod = `this.requestInstance.post<${returnType}>(${endpointStr}, req)`;
+        requestMethod = `this.requestInstance.post<I${returnType}Args>(${endpointStr}, req)`;
       } else if (httpMethod === 'PUT') {
-        requestMethod = `this.requestInstance.put<${returnType}>(${endpointStr}, req)`;
+        requestMethod = `this.requestInstance.put<I${returnType}Args>(${endpointStr}, req)`;
       } else if (httpMethod === 'DELETE') {
-        requestMethod = `this.requestInstance.delete<${returnType}>(${endpointStr})`;
+        requestMethod = `this.requestInstance.delete<I${returnType}Args>(${endpointStr})`;
       }
 
       return `  /**
    * ${methodName}
    */
-  async ${methodName}(req: any): Promise<${returnType}> {
+  async ${methodName}(req: I${requestType}Args): Promise<I${returnType}Args> {
 ${pathProcessing}
     const response = await ${requestMethod};
     return response;
@@ -169,7 +166,7 @@ ${pathProcessing}
  * 请勿手动修改此文件
  */
 
-import { ${endpoints.map(e => e.returnType).join(', ')} } from '../generated';
+import { ${endpoints.map(e => `I${e.requestType}Args, I${e.returnType}Args`).join(', ')} } from '../generated';
 import { RequestInstance } from '../request';
 
 export interface ClientConfig {
@@ -177,7 +174,7 @@ export interface ClientConfig {
   requestInstance?: RequestInstance;
 }
 
-export class ${service.name}Client {
+export class ${serviceName}Client {
   private requestInstance: RequestInstance;
 
   constructor(config: ClientConfig = {}) {
@@ -188,13 +185,13 @@ ${methods}
 }
 
 // 创建默认实例
-export const ${service.name.toLowerCase()}Client = new ${service.name}Client();
+export const ${this.toCamelCase(serviceName)}Client = new ${serviceName}Client();
 
-export default ${service.name.toLowerCase()}Client;
+export default ${this.toCamelCase(serviceName)}Client;
 `;
 
     await fs.writeFile(clientPath, clientContent, 'utf8');
-    console.log(`📄 生成客户端: ${service.name}Client.ts`);
+    console.log(`📄 生成客户端: ${serviceName}Client.ts`);
   }
 
   /**
@@ -204,8 +201,8 @@ export default ${service.name.toLowerCase()}Client;
     const indexPath = path.join(this.clientsConfig.outputDir, 'index.ts');
 
     const exports = Array.from(servicesMap.keys()).map(serviceName => {
-      const clientName = serviceName.toLowerCase();
-      return `export { ${serviceName}Client, ${clientName}Client, default as ${clientName}ClientDefault } from './${serviceName}Client'`;
+      const clientName = this.toCamelCase(serviceName);
+      return `export { ${serviceName}Client, ${clientName}Client } from './${serviceName}Client'`;
     }).join('\n');
 
     const indexContent = `/* tslint:disable */
@@ -222,6 +219,13 @@ ${exports}
     console.log('📄 生成客户端导出文件: index.ts');
   }
 
+
+  /**
+   * 将字符串转换为驼峰命名
+   */
+  toCamelCase(str) {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+  }
 
   /**
    * 解析IDL文件，提取API端点信息
@@ -253,15 +257,16 @@ ${exports}
           services.set(serviceName, []);
         }
 
-        // 匹配API注解的正则表达式
-        const apiRegex = /(\w+)\s+(\w+)\([^)]*\)\s*\(api\.(get|post|put|delete)="([^"]+)"\)/g;
+        // 匹配API注解的正则表达式，提取返回类型、方法名、请求类型、HTTP方法和端点
+        const apiRegex = /(\w+)\s+(\w+)\(\d+:\s*(\w+)\s+\w+\)\s*\(api\.(get|post|put|delete)="([^"]+)"\)/g;
         let match;
 
         while ((match = apiRegex.exec(content)) !== null) {
-          const [, returnType, methodName, httpMethod, endpoint] = match;
+          const [, returnType, methodName, requestType, httpMethod, endpoint] = match;
           services.get(serviceName).push({
             methodName,
             returnType,
+            requestType,
             httpMethod: httpMethod.toUpperCase(),
             endpoint,
             serviceName

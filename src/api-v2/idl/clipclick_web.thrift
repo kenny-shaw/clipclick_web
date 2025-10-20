@@ -53,7 +53,7 @@ struct FolderListResp {
 }
 
 struct FolderDetailReq {
-	1: required i64 folderId,
+	1: required i64 folderId (api.path="folderId"),
 }
 
 struct FolderDetailResp {
@@ -72,7 +72,7 @@ struct FolderCreateResp {
 }
 
 struct FolderUpdateReq {
-	1: required i64 folderId,
+	1: required i64 folderId (api.path="folderId"),
 	2: optional string name,
 	3: optional i64 parentId,
 	4: optional string tosKey,
@@ -125,7 +125,7 @@ struct MaterialListResp {
 }
 
 struct MaterialDetailReq {
-	1: required i64 materialId,
+	1: required i64 materialId (api.path="materialId"),
 }
 
 struct MaterialDetailResp {
@@ -154,7 +154,7 @@ struct MaterialCreateResp {
 }
 
 struct MaterialUpdateReq {
-	1: required i64 materialId,
+	1: required i64 materialId (api.path="materialId"),
 	2: optional i64 folderId,
 	3: optional string name,
 	4: optional string attributes,
@@ -206,7 +206,7 @@ struct ProductListResp {
 }
 
 struct ProductDetailReq {
-	1: required i64 productId,
+	1: required i64 productId (api.path="productId"),
 }
 
 struct ProductDetailResp {
@@ -226,7 +226,7 @@ struct ProductCreateResp {
 }
 
 struct ProductUpdateReq {
-	1: required i64 productId,
+	1: required i64 productId (api.path="productId"),
 	2: optional string name,
 	3: optional i64 mainFolderId,
 	4: optional i64 captionFolderId,

@@ -69,7 +69,11 @@ export const ProductDetailReqCodec: thrift.IStructCodec<IProductDetailReqArgs, I
 export class ProductDetailReq extends thrift.StructLike implements IProductDetailReq {
     public productId: thrift.Int64;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        productId: {
+            'api.path': "productId"
+        }
+    };
     constructor(args: IProductDetailReqArgs) {
         super();
         if (args.productId != null) {

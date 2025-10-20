@@ -145,7 +145,11 @@ export class FolderUpdateReq extends thrift.StructLike implements IFolderUpdateR
     public tosKey?: string;
     public vectorIndex?: string;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        folderId: {
+            'api.path': "folderId"
+        }
+    };
     constructor(args: IFolderUpdateReqArgs) {
         super();
         if (args.folderId != null) {

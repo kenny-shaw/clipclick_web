@@ -69,7 +69,11 @@ export const MaterialDetailReqCodec: thrift.IStructCodec<IMaterialDetailReqArgs,
 export class MaterialDetailReq extends thrift.StructLike implements IMaterialDetailReq {
     public materialId: thrift.Int64;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        materialId: {
+            'api.path': "materialId"
+        }
+    };
     constructor(args: IMaterialDetailReqArgs) {
         super();
         if (args.materialId != null) {

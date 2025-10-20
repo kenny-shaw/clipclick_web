@@ -164,7 +164,11 @@ export class ProductUpdateReq extends thrift.StructLike implements IProductUpdat
     public prefixFolderId?: thrift.Int64;
     public picFolderId?: thrift.Int64;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        productId: {
+            'api.path': "productId"
+        }
+    };
     constructor(args: IProductUpdateReqArgs) {
         super();
         if (args.productId != null) {

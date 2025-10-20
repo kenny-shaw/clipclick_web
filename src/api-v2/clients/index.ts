@@ -5,4 +5,4 @@
  * 请勿手动修改此文件
  */
 
-export { HttpWebServiceClient, httpwebserviceClient, default as httpwebserviceClientDefault } from './HttpWebServiceClient'
+export { HttpWebServiceClient, httpWebServiceClient } from './HttpWebServiceClient'

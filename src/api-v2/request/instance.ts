@@ -7,36 +7,14 @@ interface BaseResponse {
 // 响应接口类型
 export type ApiResponse<T = unknown> = BaseResponse & T;
 
+import { API_CONFIG } from './config';
+
 // 默认API配置
-const defaultApiConfig = {
-    baseUrl: 'http://47.93.53.0:8080',
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-};
-
-// 从api.config.json读取配置
-let apiConfig = defaultApiConfig;
-
-if (typeof window === 'undefined') {
-    try {
-        const fs = require('fs');
-        const path = require('path');
-        const configPath = path.join(process.cwd(), 'api.config.json');
-
-        if (fs.existsSync(configPath)) {
-            const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            apiConfig = config.api || defaultApiConfig;
-        }
-    } catch (error) {
-        console.warn('无法读取api.config.json，使用默认配置:', error);
-    }
-}
+const defaultApiConfig = API_CONFIG;
 
 // 构建请求URL
 const buildUrl = (endpoint: string): string => {
-    return `${apiConfig.baseUrl}${endpoint}`;
+    return `${defaultApiConfig.baseUrl}${endpoint}`;
 };
 
 // Token管理 - 从localStorage获取
@@ -85,7 +63,7 @@ const responseInterceptor = async <T>(response: Response): Promise<T> => {
 // 构建请求头
 const buildHeaders = (customHeaders?: Record<string, string>): HeadersInit => {
     const baseHeaders = {
-        ...apiConfig.headers,
+        ...defaultApiConfig.headers,
         ...customHeaders,
     };
 
@@ -97,13 +75,13 @@ export class RequestInstance {
     private baseUrl: string;
 
     constructor(baseUrl?: string) {
-        this.baseUrl = baseUrl || apiConfig.baseUrl;
+        this.baseUrl = baseUrl || defaultApiConfig.baseUrl;
     }
 
     // GET请求
     async get<T = unknown>(
         endpoint: string,
-        params?: Record<string, string | number | undefined>
+        params?: Record<string, any>
     ): Promise<ApiResponse<T>> {
         const url = new URL(`${this.baseUrl}${endpoint}`);
 

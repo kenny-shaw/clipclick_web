@@ -69,7 +69,11 @@ export const FolderDetailReqCodec: thrift.IStructCodec<IFolderDetailReqArgs, IFo
 export class FolderDetailReq extends thrift.StructLike implements IFolderDetailReq {
     public folderId: thrift.Int64;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        folderId: {
+            'api.path': "folderId"
+        }
+    };
     constructor(args: IFolderDetailReqArgs) {
         super();
         if (args.folderId != null) {

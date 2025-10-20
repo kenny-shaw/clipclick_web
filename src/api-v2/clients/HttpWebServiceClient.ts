@@ -5,7 +5,7 @@
  * 请勿手动修改此文件
  */
 
-import { PingResp, TosStsTokenResp, FolderListResp, FolderDetailResp, FolderCreateResp, FolderUpdateResp, FolderDeleteResp, MaterialListResp, MaterialDetailResp, MaterialCreateResp, MaterialUpdateResp, MaterialDeleteResp, ProductListResp, ProductDetailResp, ProductCreateResp, ProductUpdateResp, ProductDeleteResp, UserRegisterResp, UserLoginResp, UserInfoResp, UserUpdateResp } from '../generated';
+import { IPingReqArgs, IPingRespArgs, IFolderListReqArgs, IFolderListRespArgs, IFolderDetailReqArgs, IFolderDetailRespArgs, IFolderCreateReqArgs, IFolderCreateRespArgs, IFolderUpdateReqArgs, IFolderUpdateRespArgs, IFolderDeleteReqArgs, IFolderDeleteRespArgs, IMaterialListReqArgs, IMaterialListRespArgs, IMaterialDetailReqArgs, IMaterialDetailRespArgs, IMaterialCreateReqArgs, IMaterialCreateRespArgs, IMaterialUpdateReqArgs, IMaterialUpdateRespArgs, IMaterialDeleteReqArgs, IMaterialDeleteRespArgs, IProductListReqArgs, IProductListRespArgs, IProductDetailReqArgs, IProductDetailRespArgs, IProductCreateReqArgs, IProductCreateRespArgs, IProductUpdateReqArgs, IProductUpdateRespArgs, IProductDeleteReqArgs, IProductDeleteRespArgs, IUserRegisterReqArgs, IUserRegisterRespArgs, IUserLoginReqArgs, IUserLoginRespArgs, IEmptyRequestArgs, IUserInfoRespArgs, IUserUpdateReqArgs, IUserUpdateRespArgs } from '../generated';
 import { RequestInstance } from '../request';
 
 export interface ClientConfig {
@@ -23,194 +23,185 @@ export class HttpWebServiceClient {
   /**
    * Ping
    */
-  async Ping(req: any): Promise<PingResp> {
+  async Ping(req: IPingReqArgs): Promise<IPingRespArgs> {
 
-    const response = await this.requestInstance.post<PingResp>('/api/ping', req);
-    return response;
-  }
-
-  /**
-   * GetTosStsToken
-   */
-  async GetTosStsToken(req: any): Promise<TosStsTokenResp> {
-
-    const response = await this.requestInstance.get<TosStsTokenResp>('/api/account/tos-sts-token', req);
+    const response = await this.requestInstance.post<IPingRespArgs>('/api/ping', req);
     return response;
   }
 
   /**
    * GetFolderList
    */
-  async GetFolderList(req: any): Promise<FolderListResp> {
+  async GetFolderList(req: IFolderListReqArgs): Promise<IFolderListRespArgs> {
 
-    const response = await this.requestInstance.get<FolderListResp>('/api/folders', req);
+    const response = await this.requestInstance.get<IFolderListRespArgs>('/api/folders', req);
     return response;
   }
 
   /**
    * GetFolderDetail
    */
-  async GetFolderDetail(req: any): Promise<FolderDetailResp> {
-    const path = '/api/folders/{folderId}'.replace('{folderId}', req.folderId || '');
-    const response = await this.requestInstance.get<FolderDetailResp>(path, req);
+  async GetFolderDetail(req: IFolderDetailReqArgs): Promise<IFolderDetailRespArgs> {
+    const path = '/api/folders/{folderId}'.replace('{folderId}', String(req.folderId || ''));
+    const response = await this.requestInstance.get<IFolderDetailRespArgs>(path, req);
     return response;
   }
 
   /**
    * CreateFolder
    */
-  async CreateFolder(req: any): Promise<FolderCreateResp> {
+  async CreateFolder(req: IFolderCreateReqArgs): Promise<IFolderCreateRespArgs> {
 
-    const response = await this.requestInstance.post<FolderCreateResp>('/api/folders', req);
+    const response = await this.requestInstance.post<IFolderCreateRespArgs>('/api/folders', req);
     return response;
   }
 
   /**
    * UpdateFolder
    */
-  async UpdateFolder(req: any): Promise<FolderUpdateResp> {
-    const path = '/api/folders/{folderId}'.replace('{folderId}', req.folderId || '');
-    const response = await this.requestInstance.put<FolderUpdateResp>(path, req);
+  async UpdateFolder(req: IFolderUpdateReqArgs): Promise<IFolderUpdateRespArgs> {
+    const path = '/api/folders/{folderId}'.replace('{folderId}', String(req.folderId || ''));
+    const response = await this.requestInstance.put<IFolderUpdateRespArgs>(path, req);
     return response;
   }
 
   /**
    * DeleteFolder
    */
-  async DeleteFolder(req: any): Promise<FolderDeleteResp> {
-    const path = '/api/folders/{folderId}'.replace('{folderId}', req.folderId || '');
-    const response = await this.requestInstance.delete<FolderDeleteResp>(path);
+  async DeleteFolder(req: IFolderDeleteReqArgs): Promise<IFolderDeleteRespArgs> {
+    const path = '/api/folders/{folderId}'.replace('{folderId}', String(req.folderId || ''));
+    const response = await this.requestInstance.delete<IFolderDeleteRespArgs>(path);
     return response;
   }
 
   /**
    * GetMaterialList
    */
-  async GetMaterialList(req: any): Promise<MaterialListResp> {
+  async GetMaterialList(req: IMaterialListReqArgs): Promise<IMaterialListRespArgs> {
 
-    const response = await this.requestInstance.get<MaterialListResp>('/api/materials', req);
+    const response = await this.requestInstance.get<IMaterialListRespArgs>('/api/materials', req);
     return response;
   }
 
   /**
    * GetMaterialDetail
    */
-  async GetMaterialDetail(req: any): Promise<MaterialDetailResp> {
-    const path = '/api/materials/{materialId}'.replace('{materialId}', req.materialId || '');
-    const response = await this.requestInstance.get<MaterialDetailResp>(path, req);
+  async GetMaterialDetail(req: IMaterialDetailReqArgs): Promise<IMaterialDetailRespArgs> {
+    const path = '/api/materials/{materialId}'.replace('{materialId}', String(req.materialId || ''));
+    const response = await this.requestInstance.get<IMaterialDetailRespArgs>(path, req);
     return response;
   }
 
   /**
    * CreateMaterial
    */
-  async CreateMaterial(req: any): Promise<MaterialCreateResp> {
+  async CreateMaterial(req: IMaterialCreateReqArgs): Promise<IMaterialCreateRespArgs> {
 
-    const response = await this.requestInstance.post<MaterialCreateResp>('/api/materials', req);
+    const response = await this.requestInstance.post<IMaterialCreateRespArgs>('/api/materials', req);
     return response;
   }
 
   /**
    * UpdateMaterial
    */
-  async UpdateMaterial(req: any): Promise<MaterialUpdateResp> {
-    const path = '/api/materials/{materialId}'.replace('{materialId}', req.materialId || '');
-    const response = await this.requestInstance.put<MaterialUpdateResp>(path, req);
+  async UpdateMaterial(req: IMaterialUpdateReqArgs): Promise<IMaterialUpdateRespArgs> {
+    const path = '/api/materials/{materialId}'.replace('{materialId}', String(req.materialId || ''));
+    const response = await this.requestInstance.put<IMaterialUpdateRespArgs>(path, req);
     return response;
   }
 
   /**
    * DeleteMaterial
    */
-  async DeleteMaterial(req: any): Promise<MaterialDeleteResp> {
-    const path = '/api/materials/{materialId}'.replace('{materialId}', req.materialId || '');
-    const response = await this.requestInstance.delete<MaterialDeleteResp>(path);
+  async DeleteMaterial(req: IMaterialDeleteReqArgs): Promise<IMaterialDeleteRespArgs> {
+    const path = '/api/materials/{materialId}'.replace('{materialId}', String(req.materialId || ''));
+    const response = await this.requestInstance.delete<IMaterialDeleteRespArgs>(path);
     return response;
   }
 
   /**
    * GetProductList
    */
-  async GetProductList(req: any): Promise<ProductListResp> {
+  async GetProductList(req: IProductListReqArgs): Promise<IProductListRespArgs> {
 
-    const response = await this.requestInstance.get<ProductListResp>('/api/products', req);
+    const response = await this.requestInstance.get<IProductListRespArgs>('/api/products', req);
     return response;
   }
 
   /**
    * GetProductDetail
    */
-  async GetProductDetail(req: any): Promise<ProductDetailResp> {
-    const path = '/api/products/{productId}'.replace('{productId}', req.productId || '');
-    const response = await this.requestInstance.get<ProductDetailResp>(path, req);
+  async GetProductDetail(req: IProductDetailReqArgs): Promise<IProductDetailRespArgs> {
+    const path = '/api/products/{productId}'.replace('{productId}', String(req.productId || ''));
+    const response = await this.requestInstance.get<IProductDetailRespArgs>(path, req);
     return response;
   }
 
   /**
    * CreateProduct
    */
-  async CreateProduct(req: any): Promise<ProductCreateResp> {
+  async CreateProduct(req: IProductCreateReqArgs): Promise<IProductCreateRespArgs> {
 
-    const response = await this.requestInstance.post<ProductCreateResp>('/api/products', req);
+    const response = await this.requestInstance.post<IProductCreateRespArgs>('/api/products', req);
     return response;
   }
 
   /**
    * UpdateProduct
    */
-  async UpdateProduct(req: any): Promise<ProductUpdateResp> {
-    const path = '/api/products/{productId}'.replace('{productId}', req.productId || '');
-    const response = await this.requestInstance.put<ProductUpdateResp>(path, req);
+  async UpdateProduct(req: IProductUpdateReqArgs): Promise<IProductUpdateRespArgs> {
+    const path = '/api/products/{productId}'.replace('{productId}', String(req.productId || ''));
+    const response = await this.requestInstance.put<IProductUpdateRespArgs>(path, req);
     return response;
   }
 
   /**
    * DeleteProduct
    */
-  async DeleteProduct(req: any): Promise<ProductDeleteResp> {
-    const path = '/api/products/{productId}'.replace('{productId}', req.productId || '');
-    const response = await this.requestInstance.delete<ProductDeleteResp>(path);
+  async DeleteProduct(req: IProductDeleteReqArgs): Promise<IProductDeleteRespArgs> {
+    const path = '/api/products/{productId}'.replace('{productId}', String(req.productId || ''));
+    const response = await this.requestInstance.delete<IProductDeleteRespArgs>(path);
     return response;
   }
 
   /**
    * RegisterUser
    */
-  async RegisterUser(req: any): Promise<UserRegisterResp> {
+  async RegisterUser(req: IUserRegisterReqArgs): Promise<IUserRegisterRespArgs> {
 
-    const response = await this.requestInstance.post<UserRegisterResp>('/api/user/register', req);
+    const response = await this.requestInstance.post<IUserRegisterRespArgs>('/api/user/register', req);
     return response;
   }
 
   /**
    * LoginUser
    */
-  async LoginUser(req: any): Promise<UserLoginResp> {
+  async LoginUser(req: IUserLoginReqArgs): Promise<IUserLoginRespArgs> {
 
-    const response = await this.requestInstance.post<UserLoginResp>('/api/user/login', req);
+    const response = await this.requestInstance.post<IUserLoginRespArgs>('/api/user/login', req);
     return response;
   }
 
   /**
    * GetUserInfo
    */
-  async GetUserInfo(req: any): Promise<UserInfoResp> {
+  async GetUserInfo(req: IEmptyRequestArgs): Promise<IUserInfoRespArgs> {
 
-    const response = await this.requestInstance.get<UserInfoResp>('/api/user/info', req);
+    const response = await this.requestInstance.get<IUserInfoRespArgs>('/api/user/info', req);
     return response;
   }
 
   /**
    * UpdateUser
    */
-  async UpdateUser(req: any): Promise<UserUpdateResp> {
+  async UpdateUser(req: IUserUpdateReqArgs): Promise<IUserUpdateRespArgs> {
 
-    const response = await this.requestInstance.put<UserUpdateResp>('/api/user/update', req);
+    const response = await this.requestInstance.put<IUserUpdateRespArgs>('/api/user/update', req);
     return response;
   }
 }
 
 // 创建默认实例
-export const httpwebserviceClient = new HttpWebServiceClient();
+export const httpWebServiceClient = new HttpWebServiceClient();
 
-export default httpwebserviceClient;
+export default httpWebServiceClient;

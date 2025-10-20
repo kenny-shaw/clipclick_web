@@ -335,7 +335,11 @@ export class MaterialUpdateReq extends thrift.StructLike implements IMaterialUpd
     public isPublic?: number;
     public understandingStatus?: number;
     public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+        materialId: {
+            'api.path': "materialId"
+        }
+    };
     constructor(args: IMaterialUpdateReqArgs) {
         super();
         if (args.materialId != null) {
